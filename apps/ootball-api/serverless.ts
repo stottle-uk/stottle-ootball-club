@@ -1,14 +1,33 @@
 import type { Serverless } from 'serverless/aws';
+import { env } from '../../environments/environment.serverless';
 import {
   baseServerlessConfig,
   baseServerlessConfigProvider,
 } from '../../serverless.base';
+
+const myFirstTableName = 'my-first-table';
 
 const serverlessConfig: Partial<Serverless> = {
   ...baseServerlessConfig,
   service: `ootball-api`,
   provider: {
     ...(baseServerlessConfig.provider || baseServerlessConfigProvider),
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: [
+              'dynamodb:Query',
+              'dynamodb:GetItem',
+              'dynamodb:PutItem',
+              'dynamodb:UpdateItem',
+            ],
+            Resource: `arn:aws:dynamodb:${env.region}:*:table/${myFirstTableName}`,
+          },
+        ],
+      },
+    },
   },
   custom: {
     ...baseServerlessConfig.custom,
@@ -28,6 +47,32 @@ const serverlessConfig: Partial<Serverless> = {
           },
         },
       ],
+    },
+  },
+  resources: {
+    Resources: {
+      AppTable: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: myFirstTableName,
+          AttributeDefinitions: [
+            {
+              AttributeName: 'primaryKey',
+              AttributeType: 'S',
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'primaryKey',
+              KeyType: 'HASH',
+            },
+          ],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 1,
+            WriteCapacityUnits: 1,
+          },
+        },
+      },
     },
   },
 };
