@@ -1,0 +1,61 @@
+{
+  "name": "ootball-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/ootball-api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/ootball-api",
+        "color": true,
+        "command": "sls package"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/ootball-api",
+        "color": true,
+        "command": "sls offline start"
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/ootball-api",
+        "color": true,
+        "command": "sls deploy --verbose"
+      },
+      "dependsOn": [
+        {
+          "target": "deploy",
+          "projects": "dependencies"
+        }
+      ]
+    },
+    "remove": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/ootball-api",
+        "color": true,
+        "command": "sls remove"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/ootball-api/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/ootball-api"],
+      "options": {
+        "jestConfig": "apps/ootball-api/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": ["service"]
+}
