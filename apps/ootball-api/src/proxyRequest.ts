@@ -7,10 +7,6 @@ import {
 } from 'aws-lambda';
 import crossFetch from 'cross-fetch';
 
-if (!globalThis.fetch) {
-  globalThis.fetch = crossFetch;
-}
-
 const corsHeaders = {
   // Change this to your domains
   'Access-Control-Allow-Origin': '*',
@@ -41,7 +37,7 @@ const getURLConfig = (event: APIGatewayProxyEvent) => {
   const url = new URL(`https://football-web-pages1.p.rapidapi.com${urlProxy}`);
   const keyTidy = `${url.pathname}${url.search}`.toLowerCase().trim();
   const keyEncoded = Buffer.from(keyTidy).toString('base64');
-  return { keyEncoded, url, keyTidy };
+  return { url, keyTidy, keyEncoded };
 };
 
 const dbService = () => {
@@ -73,7 +69,7 @@ const dbService = () => {
 };
 
 const fetchSerice = () => {
-  const fetch = new FetchClient();
+  const fetch = new FetchClient(crossFetch);
   const headers = {
     'X-RapidAPI-Key': '57b972bd34msh9ea405fae2bac9ep13e8dcjsn2007d5fffa4f',
     'X-RapidAPI-Host': 'football-web-pages1.p.rapidapi.com',
@@ -86,8 +82,8 @@ const fetchSerice = () => {
 
 export const main: APIGatewayProxyHandler = async (event) => {
   const { url, keyTidy, keyEncoded } = getURLConfig(event);
-  const { getRecord, putRecord } = dbService();
 
+  const { getRecord, putRecord } = dbService();
   const res = await getRecord(keyEncoded);
   if (res.Item) {
     return httpResponse(JSON.parse(res.Item.proxyData.S));
