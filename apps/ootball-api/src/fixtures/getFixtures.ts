@@ -26,7 +26,8 @@ export function httpResponse(
 }
 
 export const main: APIGatewayProxyHandler = async (event, context) => {
-  console.log(event);
+  console.log('event', event);
+  console.log('context');
 
   return httpResponse({
     todo: [],

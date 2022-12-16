@@ -52,7 +52,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["coverage/apps/ootball-api"],
       "options": {
-        "jestConfig": "apps/ootball-api/jest.config.js",
+        "jestConfig": "apps/ootball-api/jest.config.ts",
         "passWithNoTests": true
       }
     }
