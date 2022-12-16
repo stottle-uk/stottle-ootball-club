@@ -1,11 +1,29 @@
-import React from 'react';
-import Match from '../matches/Match';
-import { derehamFixturesData } from './games.data';
+import React, { useEffect, useState } from 'react';
+import { useFetch } from '../../hooks';
+import { FixturesResults, GamesRes } from './games.models';
 
-export const Fixtures: React.FC = () => {
-  const games = derehamFixturesData['fixtures-results'];
+interface OwnProps {
+  teamId: number;
+}
 
-  return (
+export const Fixtures: React.FC<OwnProps> = ({ teamId }) => {
+  const [games, setCompetitions] = useState<FixturesResults>();
+  const fetch = useFetch('http://localhost:3005/dev/');
+
+  useEffect(() => {
+    if (teamId) {
+      (async () => {
+        const res = await fetch.get<GamesRes>(
+          `fixtures-results.json?team=${teamId}`
+        );
+        setCompetitions(res['fixtures-results']);
+      })();
+    }
+  }, [teamId]);
+
+  return !games ? (
+    <span>Select a Team</span>
+  ) : (
     <div className="fixtures">
       <h1>
         {games.team.name} ({games.team.id})
@@ -44,11 +62,11 @@ export const Fixtures: React.FC = () => {
                 </td>
                 <td>{g['away-team'].name}</td>
               </tr>
-              <tr className="match">
+              {/* <tr className="match">
                 <td colSpan={3}>
                   <Match />
                 </td>
-              </tr>
+              </tr> */}
             </React.Fragment>
           ))}
           {/* {games.matches.map((g) => (

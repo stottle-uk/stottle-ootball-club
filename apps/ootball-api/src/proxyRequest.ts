@@ -5,10 +5,10 @@ import {
   APIGatewayProxyHandler,
   APIGatewayProxyResult,
 } from 'aws-lambda';
-import nodeFetch from 'node-fetch';
+import crossFetch from 'cross-fetch';
 
 if (!globalThis.fetch) {
-  globalThis.fetch = nodeFetch as unknown as typeof fetch;
+  globalThis.fetch = crossFetch;
 }
 
 const corsHeaders = {
@@ -17,11 +17,6 @@ const corsHeaders = {
   // Change this to your headers
   'Access-Control-Allow-Headers': '*',
   'Access-Control-Max-Age': 86400,
-};
-
-const headers = {
-  'X-RapidAPI-Key': '57b972bd34msh9ea405fae2bac9ep13e8dcjsn2007d5fffa4f',
-  'X-RapidAPI-Host': 'football-web-pages1.p.rapidapi.com',
 };
 
 const httpResponse = <T>(
@@ -49,41 +44,58 @@ const getURLConfig = (event: APIGatewayProxyEvent) => {
   return { keyEncoded, url, keyTidy };
 };
 
-const tableName = 'my-first-table';
-const getRecord = (db: DynamoDB, key: string) =>
-  db.getItem({
-    Key: { primaryKey: { S: key } },
-    TableName: tableName,
-  });
+const dbService = () => {
+  const db = new DynamoDB({ region: 'eu-west-1' });
+  const tableName = 'my-first-table';
 
-const putRecord = <T>(db: DynamoDB, key: string, keyTidy: string, data: T) =>
-  db.putItem({
-    TableName: tableName,
-    Item: {
-      primaryKey: { S: key },
-      primaryKeyNice: { S: keyTidy },
-      otherData: { S: JSON.stringify(data) },
-    },
-    ReturnValues: 'ALL_OLD',
-  });
+  const getRecord = (key: string) =>
+    db.getItem({
+      Key: { primaryKey: { S: key } },
+      TableName: tableName,
+    });
 
-const getProxyRequest = (url: URL) =>
-  new FetchClient().get(url.href, {
-    headers,
-  });
+  const putRecord = <T>(key: string, keyTidy: string, data: T) =>
+    db.putItem({
+      TableName: tableName,
+      Item: {
+        primaryKey: { S: key },
+        primaryKeyNice: { S: keyTidy },
+        otherData: { S: JSON.stringify(data) },
+      },
+      ReturnValues: 'ALL_OLD',
+    });
+
+  return {
+    getRecord,
+    putRecord,
+  };
+};
+
+const fetchSerice = () => {
+  const fetch = new FetchClient();
+  const headers = {
+    'X-RapidAPI-Key': '57b972bd34msh9ea405fae2bac9ep13e8dcjsn2007d5fffa4f',
+    'X-RapidAPI-Host': 'football-web-pages1.p.rapidapi.com',
+  };
+
+  const getData = (url: string) => fetch.get(url, { headers });
+
+  return { getData };
+};
 
 export const main: APIGatewayProxyHandler = async (event) => {
   const { url, keyTidy, keyEncoded } = getURLConfig(event);
-  const db = new DynamoDB({ region: 'eu-west-1' });
+  const { getRecord, putRecord } = dbService();
 
-  const res = await getRecord(db, keyEncoded);
+  const res = await getRecord(keyEncoded);
   if (res.Item) {
     return httpResponse(JSON.parse(res.Item.otherData.S));
   }
 
-  const fetchRes = await getProxyRequest(url);
+  const { getData } = fetchSerice();
+  const fetchRes = await getData(url.href);
 
-  await putRecord(db, keyEncoded, keyTidy, fetchRes);
+  await putRecord(keyEncoded, keyTidy, fetchRes);
 
   return httpResponse(fetchRes);
 };
