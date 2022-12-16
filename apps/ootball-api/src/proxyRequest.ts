@@ -36,10 +36,10 @@ const httpResponse = <T>(
 
 const getURLConfig = (event: APIGatewayProxyEvent) => {
   const params = new URLSearchParams(event.queryStringParameters);
-  const urlProxy = `${event.path}?${params}`;
+  const urlProxy = `${event.path}?${params}`.toLowerCase().trim();
 
   const url = new URL(`https://football-web-pages1.p.rapidapi.com${urlProxy}`);
-  const keyTidy = `${url.pathname}${url.search}`;
+  const keyTidy = `${url.pathname}${url.search}`.toLowerCase().trim();
   const keyEncoded = Buffer.from(keyTidy).toString('base64');
   return { keyEncoded, url, keyTidy };
 };
@@ -60,7 +60,8 @@ const dbService = () => {
       Item: {
         primaryKey: { S: key },
         primaryKeyNice: { S: keyTidy },
-        otherData: { S: JSON.stringify(data) },
+        createdDate: { S: new Date().toISOString() },
+        proxyData: { S: JSON.stringify(data) },
       },
       ReturnValues: 'ALL_OLD',
     });
@@ -89,7 +90,7 @@ export const main: APIGatewayProxyHandler = async (event) => {
 
   const res = await getRecord(keyEncoded);
   if (res.Item) {
-    return httpResponse(JSON.parse(res.Item.otherData.S));
+    return httpResponse(JSON.parse(res.Item.proxyData.S));
   }
 
   const { getData } = fetchSerice();
