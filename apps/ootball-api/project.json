@@ -17,7 +17,7 @@
       "options": {
         "cwd": "apps/ootball-api",
         "color": true,
-        "command": "sls offline start"
+        "command": "export AWS_PROFILE=stottle && sls offline start"
       }
     },
     "deploy": {
