@@ -9,11 +9,15 @@ export const baseServerlessConfigProvider: Serverless['provider'] = {
   memorySize: 128,
   profile: env.profile,
   stage: env.name,
+  region: env.region,
   environment: {
     NODE_ENV: envName,
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
   },
-  region: env.region,
+  apiGateway: {
+    shouldStartNameWithService: true,
+  },
+  deploymentBucket: { blockPublicAccess: true },
 };
 
 export const baseServerlessConfig: Partial<Serverless> = {

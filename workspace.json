@@ -1,7 +1,8 @@
 {
   "version": 2,
   "projects": {
-    "ootball-web": "apps/ootball-web",
-    "ootball-api": "apps/ootball-api"
+    "ootball-api": "apps/ootball-api",
+    "ootball-core": "apps/ootball-core",
+    "ootball-web": "apps/ootball-web"
   }
 }
