@@ -38,7 +38,7 @@ const serverlessConfig: Partial<Serverless> = {
   },
   functions: {
     'get-fixtures': {
-      handler: 'src/fixtures/getFixtures.main',
+      handler: 'src/proxyRequest.main',
       events: [
         {
           http: {

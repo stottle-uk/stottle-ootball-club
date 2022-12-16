@@ -4,7 +4,7 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import nodeFetch from 'node-fetch';
 
 if (!globalThis.fetch) {
-  (globalThis as any).fetch = nodeFetch;
+  globalThis.fetch = nodeFetch as unknown as typeof fetch;
 }
 
 const corsHeaders = {
