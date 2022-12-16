@@ -1,6 +1,5 @@
 import Fixtures from './ootball/games/Fixtures';
 import Leaguetable from './ootball/leagueTables/LeagueTable';
-import Match from './ootball/matches/Match';
 
 export const App: React.FC = () => {
   return (
@@ -8,8 +7,6 @@ export const App: React.FC = () => {
       <Leaguetable />
       <hr />
       <Fixtures />
-      <hr />
-      <Match />
     </>
   );
 };

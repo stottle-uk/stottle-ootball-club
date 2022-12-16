@@ -1,6 +1,10 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb';
 import { FetchClient } from '@ootball-club/http-client';
-import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyHandler,
+  APIGatewayProxyResult,
+} from 'aws-lambda';
 import nodeFetch from 'node-fetch';
 
 if (!globalThis.fetch) {
@@ -25,19 +29,17 @@ const httpResponse = <T>(
   { statusCode = 200, ...rest }: Omit<APIGatewayProxyResult, 'body'> = {
     statusCode: 200,
   }
-): APIGatewayProxyResult => {
-  return {
-    body: JSON.stringify(data),
-    statusCode,
-    ...rest,
-    headers: {
-      ...rest.headers,
-      ...corsHeaders,
-    },
-  };
-};
+): APIGatewayProxyResult => ({
+  body: JSON.stringify(data),
+  statusCode,
+  ...rest,
+  headers: {
+    ...rest.headers,
+    ...corsHeaders,
+  },
+});
 
-const getURLConfig = (event) => {
+const getURLConfig = (event: APIGatewayProxyEvent) => {
   const params = new URLSearchParams(event.queryStringParameters);
   const urlProxy = `${event.path}?${params}`;
 
@@ -47,41 +49,41 @@ const getURLConfig = (event) => {
   return { keyEncoded, url, keyTidy };
 };
 
-export const main: APIGatewayProxyHandler = async (event, context) => {
-  const { url, keyTidy, keyEncoded } = getURLConfig(event);
-  const db = new DynamoDB({ region: 'eu-west-1' });
-  const tableName = 'my-first-table';
-  const res = await db.getItem({
-    Key: {
-      primaryKey: { S: keyEncoded },
-    },
+const tableName = 'my-first-table';
+const getRecord = (db: DynamoDB, key: string) =>
+  db.getItem({
+    Key: { primaryKey: { S: key } },
     TableName: tableName,
   });
+
+const putRecord = <T>(db: DynamoDB, key: string, keyTidy: string, data: T) =>
+  db.putItem({
+    TableName: tableName,
+    Item: {
+      primaryKey: { S: key },
+      primaryKeyNice: { S: keyTidy },
+      otherData: { S: JSON.stringify(data) },
+    },
+    ReturnValues: 'ALL_OLD',
+  });
+
+const getProxyRequest = (url: URL) =>
+  new FetchClient().get(url.href, {
+    headers,
+  });
+
+export const main: APIGatewayProxyHandler = async (event) => {
+  const { url, keyTidy, keyEncoded } = getURLConfig(event);
+  const db = new DynamoDB({ region: 'eu-west-1' });
+
+  const res = await getRecord(db, keyEncoded);
   if (res.Item) {
     return httpResponse(JSON.parse(res.Item.otherData.S));
   }
 
-  try {
-    const fetch = new FetchClient();
+  const fetchRes = await getProxyRequest(url);
 
-    const fetchRes = await fetch.get(url.href, {
-      headers,
-    });
+  await putRecord(db, keyEncoded, keyTidy, fetchRes);
 
-    await db.putItem({
-      TableName: tableName,
-      Item: {
-        primaryKey: { S: keyEncoded },
-        primaryKeyNice: { S: keyTidy },
-        otherData: { S: JSON.stringify(fetchRes) },
-      },
-      ReturnValues: 'ALL_OLD',
-    });
-
-    return httpResponse(fetchRes);
-  } catch (error) {
-    console.log(error);
-  }
-
-  return httpResponse([]);
+  return httpResponse(fetchRes);
 };
