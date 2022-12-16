@@ -16,7 +16,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@ootball-club/http-client": ["libs/http-client/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

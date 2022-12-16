@@ -1,12 +1,44 @@
-import React from 'react';
-import { northernPremierMidlandsData } from './leagueTable.data';
+import React, { useCallback, useState } from 'react';
+import { useFetch, useOnceCall } from '../../hooks';
+import { CompetitionRes } from '../competitions/competitions.models';
+import { LeagueTable, LeagueTableRes } from './leagueTable.models';
 
 export const Leaguetable: React.FC = () => {
-  const league = northernPremierMidlandsData['league-table'];
+  const [league, setLeague] = useState<LeagueTable>();
+  const [competitions, setCompetitions] = useState<
+    CompetitionRes['competitions']
+  >([]);
+  const fetch = useFetch('http://localhost:3005/dev/');
+
+  const onSelectLeague = useCallback(
+    async (compId: number) => {
+      const res = await fetch.get<LeagueTableRes>(
+        `league-table.json?comp=${compId}`
+      );
+      setLeague(res['league-table']);
+    },
+    [fetch]
+  );
+
+  useOnceCall(() => {
+    (async () => {
+      const res = await fetch.get<CompetitionRes>('competitions.json');
+      setCompetitions(res.competitions);
+
+      await onSelectLeague(1);
+    })();
+  });
 
   return (
     <>
-      <h1>{league.competition.name}</h1>
+      <div className="competitions">
+        {competitions.slice(0, 20).map((c) => (
+          <span key={c.id} onClick={() => onSelectLeague(c.id)}>
+            {c['generic-name']}
+          </span>
+        ))}
+      </div>
+      <h1>{league?.competition.name}</h1>
 
       <table>
         <tbody>
@@ -22,7 +54,7 @@ export const Leaguetable: React.FC = () => {
             <th>Diff</th>
             <th>Points</th>
           </tr>
-          {league.teams.map((t) => (
+          {league?.teams.map((t) => (
             <tr key={t.id}>
               <td>{t.id}</td>
               <td>{t.name}</td>

@@ -1,6 +1,7 @@
 {
   "version": 2,
   "projects": {
+    "http-client": "libs/http-client",
     "ootball-api": "apps/ootball-api",
     "ootball-core": "apps/ootball-core",
     "ootball-web": "apps/ootball-web"

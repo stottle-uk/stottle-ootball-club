@@ -43,7 +43,8 @@ const serverlessConfig: Partial<Serverless> = {
         {
           http: {
             method: 'get',
-            path: 'todos',
+            path: '/{newPath}',
+            request: { parameters: { paths: { newPath: true } } },
           },
         },
       ],
