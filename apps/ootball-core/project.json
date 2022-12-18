@@ -1,0 +1,33 @@
+{
+  "name": "ootball-core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/ootball-core/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/ootball-core",
+        "color": true,
+        "command": "sls package"
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/ootball-core",
+        "color": true,
+        "command": "sls deploy --verbose"
+      }
+    },
+    "remove": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/ootball-core",
+        "color": true,
+        "command": "sls remove"
+      }
+    }
+  },
+  "tags": ["service"]
+}

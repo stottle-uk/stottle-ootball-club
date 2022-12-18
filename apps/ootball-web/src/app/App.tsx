@@ -1,14 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import styles from './App.module.scss';
-import NxWelcome from './nx-welcome';
+import Fixtures from './ootball/games/Fixtures';
+import Leaguetable from './ootball/leagueTables/LeagueTable';
 
-export function App() {
-  return (
-    <>
-      <NxWelcome title="ootball-web" />
-      <div />
-    </>
-  );
-}
+export const App: React.FC = () => (
+  <>
+    <h1>An Update</h1>
+    <Leaguetable />
+    <hr />
+    <Fixtures />
+  </>
+);
 
 export default App;
