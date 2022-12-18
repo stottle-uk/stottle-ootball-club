@@ -71,7 +71,7 @@ const dbService = () => {
 const fetchSerice = () => {
   const fetch = new FetchClient(crossFetch);
   const headers = {
-    'X-RapidAPI-Key': '57b972bd34msh9ea405fae2bac9ep13e8dcjsn2007d5fffa4f',
+    'X-RapidAPI-Key': process.env.RAPID_API_KEY,
     'X-RapidAPI-Host': 'football-web-pages1.p.rapidapi.com',
   };
 
