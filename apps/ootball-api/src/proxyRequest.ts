@@ -41,7 +41,7 @@ const getURLConfig = (event: APIGatewayProxyEvent) => {
 };
 
 const dbService = () => {
-  const db = new DynamoDB({ region: process.env.AWS_REGION });
+  const db = new DynamoDB({ region: process.env.OOTBALL_AWS_REGION });
   const tableName = 'my-first-table';
 
   const getRecord = (key: string) =>

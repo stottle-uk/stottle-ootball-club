@@ -40,7 +40,7 @@ const serverlessConfig: Partial<Serverless> = {
     'get-fixtures': {
       handler: 'src/proxyRequest.main',
       environment: {
-        AWS_REGION: env.region,
+        OOTBALL_AWS_REGION: env.region,
       },
       events: [
         {

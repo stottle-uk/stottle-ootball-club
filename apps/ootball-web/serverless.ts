@@ -23,7 +23,7 @@ const serverlessConfig: Partial<Serverless> = {
     'get-web': {
       handler: 'src/server/handler.serve',
       environment: {
-        AWS_REGION: env.region,
+        OOTBALL_AWS_REGION: env.region,
       },
       events: [
         {
