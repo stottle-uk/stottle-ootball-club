@@ -1,6 +1,10 @@
 import React, { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from 'react-router-dom';
 import App from './app/App';
 import { StateProvider } from './app/ootball/state/ootball.state';
 import { environment } from './environments/environment';
@@ -20,10 +24,15 @@ declare global {
 
 const defaultState = ('__CONFIG__' in window && window.__CONFIG__) || {};
 
+const rootPath = `/${environment.envName}/web-app`;
 const browserRouter = createBrowserRouter([
   {
-    path: `/${environment.envName}/web-app`,
+    path: rootPath,
     element: <App />,
+  },
+  {
+    path: '*',
+    element: <Navigate to={rootPath} replace={true} />,
   },
 ]);
 
