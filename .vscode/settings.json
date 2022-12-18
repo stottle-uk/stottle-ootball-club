@@ -3,7 +3,6 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": true
   },
-  // "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "yaml.schemas": {
     "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.yml"
