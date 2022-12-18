@@ -1,5 +1,5 @@
 export interface Environment {
-  name: 'dev' | 'stg' | 'prod';
+  name: 'dev' | 'prod';
   region: string;
   profile: string;
 }

@@ -5,7 +5,7 @@ import {
   baseServerlessConfigProvider,
 } from '../../serverless.base';
 
-const myFirstTableName = 'my-first-table';
+const myFirstTableName = `my-first-table`;
 
 const serverlessConfig: Partial<Serverless> = {
   ...baseServerlessConfig,
