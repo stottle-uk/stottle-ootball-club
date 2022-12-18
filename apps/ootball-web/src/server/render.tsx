@@ -43,7 +43,7 @@ type RenderFn = (e: APIGatewayProxyEvent) => Promise<string>;
 const getFiles = async (publicUrl: string) => {
   const s3Client = new S3Client({ region: 'eu-west-1' });
   const data = await s3Client.send(
-    new ListObjectsCommand({ Bucket: 'web-ssr-bucket' })
+    new ListObjectsCommand({ Bucket: environment.bucketName })
   );
 
   const getFiles = (ext: string): string =>

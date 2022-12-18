@@ -1,5 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 import type { Serverless } from 'serverless/aws';
+import { env } from '../../environments/environment.serverless';
 import {
   baseServerlessConfig,
   baseServerlessConfigProvider,
@@ -44,7 +45,7 @@ const serverlessConfig: Partial<Serverless> = {
       webBucket: {
         Type: 'AWS::S3::Bucket',
         Properties: {
-          BucketName: 'web-ssr-bucket',
+          BucketName: `web-ssr-bucket-${env.name}`,
           CorsConfiguration: {
             CorsRules: [
               {
