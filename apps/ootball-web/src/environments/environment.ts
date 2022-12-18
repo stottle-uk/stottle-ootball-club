@@ -3,6 +3,6 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://lxvorepjlk.execute-api.eu-west-1.amazonaws.com/dev',
+  apiUrl: 'https://yxi58blahc.execute-api.eu-west-2.amazonaws.com/prod',
   bucketName: 'web-ssr-bucket-dev',
 };
