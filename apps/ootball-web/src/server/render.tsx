@@ -41,7 +41,7 @@ type HtmlFn = (opst: HtmlOps) => string;
 type RenderFn = (e: APIGatewayProxyEvent) => Promise<string>;
 
 const getFiles = async (publicUrl: string) => {
-  const s3Client = new S3Client({ region: 'eu-west-1' });
+  const s3Client = new S3Client({ region: process.env.AWS_REGION });
   const data = await s3Client.send(
     new ListObjectsCommand({ Bucket: environment.bucketName })
   );
