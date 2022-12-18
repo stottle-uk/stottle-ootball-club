@@ -1,9 +1,9 @@
 // This file can be replaced during build by using the `fileReplacements` array.
 // When building for production, this file is replaced with `environment.prod.ts`.
 
+import { env } from '../../../../environments/environment';
+
 export const environment = {
+  ...env,
   production: false,
-  apiUrl: 'https://yxi58blahc.execute-api.eu-west-1.amazonaws.com/dev',
-  bucketName: 'web-ssr-bucket-dev',
-  bucketUrl: 'https://web-ssr-bucket-dev.s3.eu-west-1.amazonaws.com',
 };

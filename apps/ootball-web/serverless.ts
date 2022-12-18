@@ -24,6 +24,9 @@ const serverlessConfig: Partial<Serverless> = {
       handler: 'src/server/handler.serve',
       environment: {
         OOTBALL_AWS_REGION: env.region,
+        OOTBALL_API_URL: env.apiUrl,
+        OOTBALL_BUCKET_NAME: env.bucketName,
+        OOTBALL_BUCKET_URL: env.bucketUrl,
       },
       events: [
         {
