@@ -3,10 +3,11 @@ import { FetchClient } from '@ootball-club/http-client';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import crossFetch from 'cross-fetch';
 import { renderToString } from 'react-dom/server';
+import { Route, Routes } from 'react-router-dom';
+import { StaticRouter } from 'react-router-dom/server';
 import App from '../app/App';
 import { CompetitionRes } from '../app/ootball/competitions/competitions.models';
 import { StateProvider } from '../app/ootball/state/ootball.state';
-
 /*
           <link rel="stylesheet" href="${config.app.PUBLIC_URL}/styles.css">
 
@@ -112,7 +113,11 @@ const render: RenderFn = async (_e) => {
 
   const content = renderToString(
     <StateProvider defaultState={defaultState}>
-      <App />
+      <StaticRouter location={_e.path}>
+        <Routes>
+          <Route path="/web-app" element={<App />} />
+        </Routes>
+      </StaticRouter>
     </StateProvider>
   );
 
