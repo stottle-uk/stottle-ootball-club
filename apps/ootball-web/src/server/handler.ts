@@ -4,6 +4,8 @@ import 'source-map-support/register';
 export const serve: APIGatewayProxyHandler = async (event, _context) => {
   try {
     // We use asynchronous import here so we can better catch server-side errors during development
+    console.log(event);
+
     const render = (await import('./render')).default;
     return {
       statusCode: 200,
