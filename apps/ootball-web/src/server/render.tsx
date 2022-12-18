@@ -22,24 +22,68 @@ import { environment } from '../environments/environment';
         <script src="${config.app.PUBLIC_URL}/main.js" type="module"></script>
   */
 
-const html = ({
-  content,
-  config,
-  css = '',
-}: {
+interface SsrConfig {
+  defaultState: Record<string, unknown>;
+  cssFiles: string;
+  jsFiles: string;
+  app: {
+    TITLE: string;
+    PUBLIC_URL: string;
+  };
+}
+
+interface HtmlOps {
+  config: SsrConfig;
   content: string;
-  config: any;
-  css?: string;
-}): string => `<!DOCTYPE html>
+}
+
+type HtmlFn = (opst: HtmlOps) => string;
+type RenderFn = (e: APIGatewayProxyEvent) => Promise<string>;
+
+const getFiles = async (publicUrl: string) => {
+  const s3Client = new S3Client({ region: 'eu-west-1' });
+  const data = await s3Client.send(
+    new ListObjectsCommand({ Bucket: 'web-ssr-bucket' })
+  );
+
+  const getFiles = (ext: string): string =>
+    (data.Contents || [])
+      .map((d) => d.Key || '')
+      .filter(Boolean)
+      .filter((c) => c.endsWith(ext))
+      .map(
+        (fileName) =>
+          ({
+            js: `<script src="${publicUrl}/${fileName}" type="module"></script>`,
+            css: `<link rel="stylesheet" href="${publicUrl}/${fileName}">`,
+          }[fileName.split('.').at(-1) || ''])
+      )
+      .join(' ');
+
+  const jsFiles = getFiles('.js');
+  const cssFiles = getFiles('.css');
+
+  return { jsFiles, cssFiles };
+};
+
+const getState = async () => {
+  const fetch = new FetchClient(crossFetch);
+  const competitions = await fetch.get<CompetitionRes>(
+    `${environment.apiUrl}/competitions.json`
+  );
+
+  return { competitions };
+};
+
+const html: HtmlFn = ({ content, config }) => `<!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
-        <meta name="theme-color" content="${config.app.THEME_COLOR}" />
         <title>${config.app.TITLE}</title>
-        <link rel="shortcut icon" href="${config.app.PUBLIC_URL}/favicon.ico" />
+        <base href="/" />
+        <link rel="icon" href="${config.app.PUBLIC_URL}/favicon.ico" />
         ${config.cssFiles}
-        <style id="jss-server-side">${css}</style>
       </head>
       <body>
         <div id="root">${content}</div>
@@ -50,42 +94,17 @@ const html = ({
       </body>
     </html>`;
 
-const render = async (_e: APIGatewayProxyEvent): Promise<string> => {
+const render: RenderFn = async (_e) => {
   const app = {
     TITLE: 'ootball.club',
-    THEME_COLOR: '',
     // PUBLIC_URL: 'http://localhost:4200',
     PUBLIC_URL: 'https://web-ssr-bucket.s3.eu-west-1.amazonaws.com',
   };
 
-  const s3Client = new S3Client({ region: 'eu-west-1' });
-  const data = await s3Client.send(
-    new ListObjectsCommand({ Bucket: 'web-ssr-bucket' })
-  );
-
-  const keys: string[] = (data.Contents || []).map((d) => d.Key || '');
-
-  const jsFiles = keys
-    .filter((c) => c.endsWith('.js'))
-    .map(
-      (js) => `<script src="${app.PUBLIC_URL}/${js}" type="module"></script>`
-    )
-    .join(' ');
-
-  const cssFiles = keys
-    .filter((c) => c.endsWith('.css'))
-    .map((css) => `<link rel="stylesheet" href="${app.PUBLIC_URL}/${css}">`)
-    .join(' ');
-
-  const fetch = new FetchClient(crossFetch);
-
-  const competitions = await fetch.get<CompetitionRes>(
-    `${environment.apiUrl}/competitions.json`
-  );
-
-  const defaultState = { competitions };
-
-  const config = { defaultState, app, jsFiles, cssFiles };
+  const [files, defaultState] = await Promise.all([
+    getFiles(app.PUBLIC_URL),
+    getState(),
+  ]);
 
   const content = renderToString(
     <StateProvider defaultState={defaultState}>
@@ -93,7 +112,7 @@ const render = async (_e: APIGatewayProxyEvent): Promise<string> => {
     </StateProvider>
   );
 
-  return html({ content, config });
+  return html({ content, config: { defaultState, app, ...files } });
 };
 
 export default render;

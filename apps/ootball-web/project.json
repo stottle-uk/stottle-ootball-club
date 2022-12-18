@@ -111,5 +111,6 @@
       }
     }
   },
-  "tags": []
+  "tags": ["service"],
+  "implicitDependencies": ["ootball-core"]
 }
