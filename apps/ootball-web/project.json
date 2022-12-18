@@ -7,7 +7,7 @@
     "build": {
       "executor": "@nrwl/webpack:webpack",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
+      "defaultConfiguration": "development",
       "options": {
         "compiler": "babel",
         "outputPath": "dist/apps/ootball-web",
@@ -70,8 +70,14 @@
       "options": {
         "cwd": "apps/ootball-web",
         "color": true,
-        "command": "export AWS_PROFILE=stottle && sls offline start"
-      }
+        "command": "export AWS_PROFILE=stottle && npm run deploy:s3 && sls offline start"
+      },
+      "dependsOn": [
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
     },
     "deploy": {
       "executor": "nx:run-commands",
