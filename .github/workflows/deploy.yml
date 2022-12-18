@@ -1,0 +1,52 @@
+name: deploy
+
+on:
+  push:
+    branches: [ootball]
+
+jobs:
+  run-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Read .nvmrc
+        run: echo NVMRC=`cat .nvmrc` >> $GITHUB_ENV
+
+      - name: Download Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NVMRC }}
+
+      - name: Upgrade NPM for Workspaces
+        run: npm install -g npm@8
+
+      - name: Cache root node_modules
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Web App
+        run: npx nx run ootball-web:build
+
+      - name: Upload to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'eu-west-1'
+          SOURCE_DIR: 'dist/apps/ootball-web'
+
+      - name: Deploy Web
+        run: npx nx run ootball-web:deploy
+
+      - name: Deploy API
+        run: npx nx run ootball-api:deploy
