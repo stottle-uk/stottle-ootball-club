@@ -14,9 +14,6 @@ export const baseServerlessConfigProvider: Serverless['provider'] = {
     NODE_ENV: envName,
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
   },
-  apiGateway: {
-    shouldStartNameWithService: true,
-  },
   deploymentBucket: { blockPublicAccess: true },
 };
 

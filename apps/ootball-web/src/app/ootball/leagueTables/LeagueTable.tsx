@@ -1,48 +1,31 @@
-import React, { useCallback, useState } from 'react';
-import { useFetch, useOnceCall } from '../../hooks';
-import { CompetitionRes } from '../competitions/competitions.models';
-import { LeagueTable, LeagueTableRes } from './leagueTable.models';
+import React from 'react';
+import { useOnceCall } from '../../hooks';
+import { useStateContext } from '../state/ootball.state';
 
-interface OwnProps {
-  onTeamClick: (teamId: number) => void;
-}
-
-export const Leaguetable: React.FC<OwnProps> = ({ onTeamClick }) => {
-  const [league, setLeague] = useState<LeagueTable>();
-  const [competitions, setCompetitions] = useState<
-    CompetitionRes['competitions']
-  >([]);
-  const fetch = useFetch('http://localhost:3005/dev/');
-
-  const onSelectLeague = useCallback(
-    async (compId: number) => {
-      const res = await fetch.get<LeagueTableRes>(
-        `league-table.json?comp=${compId}`
-      );
-      setLeague(res['league-table']);
-    },
-    [fetch]
-  );
+export const Leaguetable: React.FC = () => {
+  const { competitions, leagueTable, dispatch } = useStateContext();
 
   useOnceCall(() => {
-    (async () => {
-      const res = await fetch.get<CompetitionRes>('competitions.json');
-      setCompetitions(res.competitions);
-    })();
-  });
+    dispatch('competitions.json', 'competitions');
+  }, competitions && !competitions.length);
 
   return (
     <>
       <div className="competitions">
-        {competitions.slice(0, 20).map((c) => (
-          <span key={c.id} onClick={() => onSelectLeague(c.id)}>
+        {(competitions || []).slice(0, 20).map((c) => (
+          <span
+            key={c.id}
+            onClick={() =>
+              dispatch(`league-table.json?comp=${c.id}`, 'leagueTable')
+            }
+          >
             {c['generic-name']}
           </span>
         ))}
       </div>
-      {league ? (
+      {leagueTable ? (
         <>
-          <h1>{league.competition.name}</h1>
+          <h1>{leagueTable.competition.name}</h1>
           <table>
             <tbody>
               <tr>
@@ -57,8 +40,13 @@ export const Leaguetable: React.FC<OwnProps> = ({ onTeamClick }) => {
                 <th>Diff</th>
                 <th>Points</th>
               </tr>
-              {league.teams.map((t) => (
-                <tr key={t.id} onClick={() => onTeamClick(t.id)}>
+              {leagueTable.teams.map((t) => (
+                <tr
+                  key={t.id}
+                  onClick={() =>
+                    dispatch(`fixtures-results.json?team=${t.id}`, 'games')
+                  }
+                >
                   <td>{t.id}</td>
                   <td>{t.name}</td>
                   <td>{t['all-matches'].played}</td>
@@ -69,9 +57,6 @@ export const Leaguetable: React.FC<OwnProps> = ({ onTeamClick }) => {
                   <td>{t['all-matches'].against}</td>
                   <td>{t['all-matches']['goal-difference']}</td>
                   <td>{t['total-points']}</td>
-                  {/* <td>
-              <pre>{JSON.stringify(t, undefined, 2)}</pre>
-            </td> */}
                 </tr>
               ))}
             </tbody>

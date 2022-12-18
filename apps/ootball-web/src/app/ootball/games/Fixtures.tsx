@@ -1,25 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useFetch } from '../../hooks';
-import { FixturesResults, GamesRes } from './games.models';
+import React from 'react';
+import { useStateContext } from '../state/ootball.state';
 
-interface OwnProps {
-  teamId: number;
-}
-
-export const Fixtures: React.FC<OwnProps> = ({ teamId }) => {
-  const [games, setCompetitions] = useState<FixturesResults>();
-  const fetch = useFetch('http://localhost:3005/dev/');
-
-  useEffect(() => {
-    if (teamId) {
-      (async () => {
-        const res = await fetch.get<GamesRes>(
-          `fixtures-results.json?team=${teamId}`
-        );
-        setCompetitions(res['fixtures-results']);
-      })();
-    }
-  }, [teamId]);
+export const Fixtures: React.FC = () => {
+  const { games } = useStateContext();
 
   return !games ? (
     <span>Select a Team</span>
