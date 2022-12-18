@@ -65,7 +65,7 @@
         }
       }
     },
-    "server": {
+    "serve-server": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/ootball-web",
