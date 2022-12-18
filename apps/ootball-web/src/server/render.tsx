@@ -98,7 +98,7 @@ const render: RenderFn = async (_e) => {
   const app = {
     TITLE: 'ootball.club',
     // PUBLIC_URL: 'http://localhost:4200',
-    PUBLIC_URL: environment.bucketName,
+    PUBLIC_URL: environment.bucketUrl,
   };
 
   const [files, defaultState] = await Promise.all([
