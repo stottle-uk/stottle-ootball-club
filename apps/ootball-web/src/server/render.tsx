@@ -46,14 +46,10 @@ const {
 } = process.env;
 
 const getFiles = async (publicUrl: string) => {
-  console.log('region', { region: OOTBALL_AWS_REGION });
-
   const s3Client = new S3Client({ region: OOTBALL_AWS_REGION });
   const data = await s3Client.send(
     new ListObjectsCommand({ Bucket: OOTBALL_BUCKET_NAME })
   );
-
-  console.log('conents', data.Contents);
 
   const getFiles = (ext: string): string =>
     (data.Contents || [])
@@ -71,8 +67,6 @@ const getFiles = async (publicUrl: string) => {
 
   const jsFiles = getFiles('.js');
   const cssFiles = getFiles('.css');
-
-  console.log('Files', { jsFiles, cssFiles });
 
   return { jsFiles, cssFiles };
 };
@@ -116,15 +110,11 @@ const render: RenderFn = async (_e) => {
     getState(),
   ]);
 
-  console.log('DATA', { app, files, defaultState });
-
   const content = renderToString(
     <StateProvider defaultState={defaultState}>
       <App />
     </StateProvider>
   );
-
-  console.log('HTML', { content, config: { defaultState, app, ...files } });
 
   return html({ content, config: { defaultState, app, ...files } });
 };
