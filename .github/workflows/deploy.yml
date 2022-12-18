@@ -10,6 +10,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: nrwl/nx-set-shas@v3
 
       - name: Read .nvmrc
         run: echo NVMRC=`cat .nvmrc` >> $GITHUB_ENV
@@ -52,8 +56,5 @@ jobs:
           AWS_REGION: 'eu-west-1'
           SOURCE_DIR: 'dist/apps/ootball-web'
 
-      - name: Deploy Web
-        run: npx nx run ootball-web:deploy
-
-      - name: Deploy API
-        run: npx nx run ootball-api:deploy
+      - name: Deploy Apps
+        run: npx nx affected --target=deploy --parallel=3
