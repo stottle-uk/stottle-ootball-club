@@ -18,8 +18,14 @@ import {
   LeagueTableRes,
 } from '../leagueTables/leagueTable.models';
 
+export interface AppState {
+  competitions?: CompetitionRes;
+  leagueTable?: LeagueTableRes;
+  games?: GamesRes;
+}
+
 interface StateModel {
-  dispatch: (url: string, type: keyof State) => void;
+  dispatch: (url: string, type: keyof AppState) => void;
   competitions?: Competition[];
   leagueTable?: LeagueTable;
   games?: FixturesResults;
@@ -36,29 +42,23 @@ const StateContext = createContext<StateModel>({
 
 export const useStateContext = () => useContext(StateContext);
 
-interface State {
-  competitions?: CompetitionRes;
-  leagueTable?: LeagueTableRes;
-  games?: GamesRes;
-}
-
 interface OwnProps {
-  defaultState: State;
+  defaultState: AppState;
 }
 
 export const StateProvider: React.FC<PropsWithChildren<OwnProps>> = ({
   children,
   defaultState,
 }) => {
-  const [state, setState] = useState<State>(defaultState);
+  const [state, setState] = useState<AppState>(defaultState);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const fetch = useFetch(environment.apiUrl);
 
   const dispatch = useCallback(
-    async (url: string, type: keyof State) => {
+    async (url: string, type: keyof AppState) => {
       setIsLoading(true);
-      const res = await fetch.get<State[keyof State]>(`/${url}`);
+      const res = await fetch.get<AppState[keyof AppState]>(`/${url}`);
       setState((s) => ({ ...s, [type]: res }));
       setIsLoaded(true);
       setIsLoading(false);

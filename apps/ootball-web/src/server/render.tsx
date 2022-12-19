@@ -1,9 +1,5 @@
 import { ListObjectsCommand, S3Client } from '@aws-sdk/client-s3';
-import createCache from '@emotion/cache';
-import { CacheProvider } from '@emotion/react';
 import createEmotionServer from '@emotion/server/create-instance';
-import { red } from '@mui/material/colors';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { FetchClient } from '@ootball-club/http-client';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import crossFetch from 'cross-fetch';
@@ -12,7 +8,9 @@ import { Route, Routes } from 'react-router-dom';
 import { StaticRouter } from 'react-router-dom/server';
 import App from '../app/App';
 import { CompetitionRes } from '../app/ootball/competitions/competitions.models';
-import { StateProvider } from '../app/ootball/state/ootball.state';
+import { AppState } from '../app/ootball/state/ootball.state';
+import Root from '../root/Root';
+import { createEmotionCache } from '../root/themes';
 
 /*
           <link rel="stylesheet" href="${config.app.PUBLIC_URL}/styles.css">
@@ -29,7 +27,7 @@ import { StateProvider } from '../app/ootball/state/ootball.state';
   */
 
 interface SsrConfig {
-  defaultState: Record<string, unknown>;
+  defaultState: AppState;
   cssFiles: string;
   jsFiles: string;
   css: string;
@@ -52,20 +50,6 @@ const {
   OOTBALL_BUCKET_URL,
   OOTBALL_API_URL,
 } = process.env;
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#556cd6',
-    },
-    secondary: {
-      main: '#19857b',
-    },
-    error: {
-      main: red.A400,
-    },
-  },
-});
 
 const getFiles = async (publicUrl: string) => {
   const s3Client = new S3Client({ region: OOTBALL_AWS_REGION });
@@ -122,42 +106,29 @@ const html: HtmlFn = ({ content, config }) => `<!DOCTYPE html>
       </body>
     </html>`;
 
-const createEmotionCache = () => createCache({ key: 'css' });
-
 const render: RenderFn = async (_e) => {
   const app = {
     TITLE: 'ootball.club',
     PUBLIC_URL: OOTBALL_BUCKET_URL || 'http://localhost:4200',
   };
 
-  const cache = createEmotionCache();
-  const { extractCriticalToChunks, constructStyleTagsFromChunks } =
-    createEmotionServer(cache);
-
-  console.log('env vars', {
-    OOTBALL_API_URL,
-    OOTBALL_AWS_REGION,
-    OOTBALL_BUCKET_NAME,
-    OOTBALL_BUCKET_URL,
-  });
-
   const [files, defaultState] = await Promise.all([
     getFiles(app.PUBLIC_URL),
     getState(),
   ]);
 
+  const cache = createEmotionCache();
+  const { extractCriticalToChunks, constructStyleTagsFromChunks } =
+    createEmotionServer(cache);
+
   const content = renderToString(
-    <CacheProvider value={cache}>
-      <ThemeProvider theme={theme}>
-        <StateProvider defaultState={defaultState}>
-          <StaticRouter location={_e.path}>
-            <Routes>
-              <Route path="/web-app" element={<App />} />
-            </Routes>
-          </StaticRouter>
-        </StateProvider>
-      </ThemeProvider>
-    </CacheProvider>
+    <Root cache={cache} defaultState={defaultState}>
+      <StaticRouter location={_e.path}>
+        <Routes>
+          <Route path="/web-app" element={<App />} />
+        </Routes>
+      </StaticRouter>
+    </Root>
   );
 
   const emotionChunks = extractCriticalToChunks(content);
