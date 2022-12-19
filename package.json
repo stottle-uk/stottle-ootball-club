@@ -55,7 +55,9 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.231.0",
     "@aws-sdk/client-s3": "^3.231.0",
+    "@emotion/css": "^11.10.5",
     "@emotion/react": "^11.10.5",
+    "@emotion/server": "^11.10.0",
     "@emotion/styled": "^11.10.5",
     "@fontsource/roboto": "^4.5.8",
     "@mui/icons-material": "^5.11.0",

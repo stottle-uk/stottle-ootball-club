@@ -1,3 +1,8 @@
+import createCache from '@emotion/cache';
+import { CacheProvider } from '@emotion/react';
+import { red } from '@mui/material/colors';
+import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import {
@@ -36,12 +41,32 @@ const browserRouter = createBrowserRouter([
   },
 ]);
 
+const cache = createCache({ key: 'css' });
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#556cd6',
+    },
+    secondary: {
+      main: '#19857b',
+    },
+    error: {
+      main: red.A400,
+    },
+  },
+});
+
 const getMainBuilder: MainFn = (state, router) => () =>
   (
     <StrictMode>
-      <StateProvider defaultState={state}>
-        <RouterProvider router={router} />
-      </StateProvider>
+      <CacheProvider value={cache}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <StateProvider defaultState={state}>
+            <RouterProvider router={router} />
+          </StateProvider>
+        </ThemeProvider>
+      </CacheProvider>
     </StrictMode>
   );
 
