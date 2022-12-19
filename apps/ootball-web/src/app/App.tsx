@@ -10,9 +10,7 @@ export const App: React.FC = () => (
     <TopBar />
     <Box padding={'16px 0'}>
       <Competitions />
-      <hr />
       <Leaguetable />
-      <hr />
       <Fixtures />
     </Box>
   </Container>
