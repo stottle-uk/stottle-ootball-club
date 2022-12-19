@@ -76,7 +76,7 @@
       "options": {
         "cwd": "apps/ootball-web",
         "color": true,
-        "command": "export AWS_PROFILE=stottle && npm run deploy:s3 && sls offline start"
+        "command": "npm run deploy:s3 && sls offline start --aws-profile stottle"
       },
       "dependsOn": [
         {
@@ -104,7 +104,7 @@
       "options": {
         "cwd": "apps/ootball-web",
         "color": true,
-        "command": "sls remove"
+        "command": "sls remove --aws-profile stottle"
       }
     },
     "lint": {
