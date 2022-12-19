@@ -24,7 +24,12 @@ export const baseServerlessConfig: Partial<Serverless> = {
     individually: true,
     excludeDevDependencies: true,
   },
-  plugins: ['serverless-esbuild', 'serverless-offline'],
+  plugins: [
+    'serverless-plugin-warmup',
+    'serverless-iam-roles-per-function',
+    'serverless-esbuild',
+    'serverless-offline',
+  ],
   custom: {
     esbuild: {
       bundle: true,

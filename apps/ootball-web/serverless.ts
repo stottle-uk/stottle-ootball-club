@@ -1,19 +1,33 @@
 /* eslint-disable no-template-curly-in-string */
-import type { Serverless } from 'serverless/aws';
+import { Serverless } from 'serverless/aws';
 import { env } from '../../environments/environment.serverless';
 import {
   baseServerlessConfig,
   baseServerlessConfigProvider,
 } from '../../serverless.base';
 
+const warmup = { warmup: { default: { concurrency: 1, enabled: true } } };
+
 const serverlessConfig: Partial<Serverless> = {
   ...baseServerlessConfig,
   service: `ootball-web`,
   provider: {
     ...(baseServerlessConfig.provider || baseServerlessConfigProvider),
+    iamRoleStatements: [
+      { Effect: 'Allow', Action: ['lambda:InvokeFunction'], Resource: '*' },
+    ],
   },
   custom: {
     ...baseServerlessConfig.custom,
+    warmup: {
+      default: {
+        enabled: true,
+        role: 'IamRoleLambdaExecution',
+        architecture: 'arm64',
+        events: [{ schedule: 'cron(0/5 8-23 ? * MON-FRI *)' }],
+        prewarm: true,
+      },
+    },
     'serverless-offline': {
       lambdaPort: 3006,
       httpPort: 3007,
@@ -21,6 +35,7 @@ const serverlessConfig: Partial<Serverless> = {
   },
   functions: {
     'get-web': {
+      ...warmup,
       handler: 'src/server/handler.serve',
       timeout: 29,
       environment: {
