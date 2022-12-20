@@ -12,20 +12,6 @@ import { AppState } from '../app/ootball/state/ootball.state';
 import Root from '../root/Root';
 import { createEmotionCache } from '../root/themes';
 
-/*
-          <link rel="stylesheet" href="${config.app.PUBLIC_URL}/styles.css">
-
-          <script src="${
-          config.app.PUBLIC_URL
-        }/runtime.js" type="module"></script>
-        <script src="${
-          config.app.PUBLIC_URL
-        }/polyfills.js" type="module"></script>
-        <script src="${config.app.PUBLIC_URL}/styles.js" type="module"></script>
-        <script src="${config.app.PUBLIC_URL}/vendor.js" type="module"></script>
-        <script src="${config.app.PUBLIC_URL}/main.js" type="module"></script>
-  */
-
 interface SsrConfig {
   defaultState: AppState;
   cssFiles: string;
@@ -106,12 +92,12 @@ const html: HtmlFn = ({ content, config }) => `<!DOCTYPE html>
       </body>
     </html>`;
 
-const render: RenderFn = async (_e) => {
-  const app = {
-    TITLE: 'ootball.club',
-    PUBLIC_URL: OOTBALL_BUCKET_URL || 'http://localhost:4200',
-  };
+const app = {
+  TITLE: 'ootball.club',
+  PUBLIC_URL: OOTBALL_BUCKET_URL || 'http://localhost:4200',
+};
 
+const render: RenderFn = async (_e) => {
   const [files, defaultState] = await Promise.all([
     getFiles(app.PUBLIC_URL),
     getState(),
@@ -135,6 +121,11 @@ const render: RenderFn = async (_e) => {
   const css = constructStyleTagsFromChunks(emotionChunks);
 
   return html({ content, config: { defaultState, app, css, ...files } });
+};
+
+export const ping: RenderFn = async (e) => {
+  await getFiles(app.PUBLIC_URL);
+  return JSON.stringify({ ping: 'pong' });
 };
 
 export default render;
