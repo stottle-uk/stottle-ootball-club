@@ -6,7 +6,9 @@ import {
   baseServerlessConfigProvider,
 } from '../../serverless.base';
 
-const warmup = { warmup: { default: { concurrency: 1, enabled: true } } };
+const warmup = {
+  warmup: { default: { concurrency: 1, enabled: env.name === 'prod' } },
+};
 
 const serverlessConfig: Partial<Serverless> = {
   ...baseServerlessConfig,
