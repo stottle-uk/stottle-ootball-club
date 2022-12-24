@@ -1,4 +1,5 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { FetchClient } from '@ootball-club/http-client';
 import {
   APIGatewayProxyEvent,
@@ -44,21 +45,21 @@ const dbService = () => {
   const db = new DynamoDB({ region: process.env.OOTBALL_AWS_REGION });
   const tableName = 'my-first-table';
 
-  const getRecord = (key: string) =>
+  const getRecord = (primaryKey: string) =>
     db.getItem({
-      Key: { primaryKey: { S: key } },
+      Key: marshall({ primaryKey }),
       TableName: tableName,
     });
 
   const putRecord = <T>(key: string, keyTidy: string, data: T) =>
     db.putItem({
       TableName: tableName,
-      Item: {
-        primaryKey: { S: key },
-        primaryKeyNice: { S: keyTidy },
-        createdDate: { S: new Date().toISOString() },
-        proxyData: { S: JSON.stringify(data) },
-      },
+      Item: marshall({
+        ...data,
+        key,
+        keyTidy,
+        createDate: new Date().toISOString(),
+      }),
       ReturnValues: 'ALL_OLD',
     });
 
@@ -86,7 +87,7 @@ export const main: APIGatewayProxyHandler = async (event) => {
   const { getRecord, putRecord } = dbService();
   const res = await getRecord(keyEncoded);
   if (res.Item) {
-    return httpResponse(JSON.parse(res.Item.proxyData.S));
+    return httpResponse(unmarshall(res.Item));
   }
 
   const { getData } = fetchSerice();

@@ -25,7 +25,7 @@ export const baseServerlessConfig: Partial<Serverless> = {
     excludeDevDependencies: true,
   },
   plugins: [
-    'serverless-plugin-warmup',
+    // 'serverless-plugin-warmup',
     'serverless-iam-roles-per-function',
     'serverless-esbuild',
     'serverless-offline',

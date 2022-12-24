@@ -39,6 +39,7 @@ const serverlessConfig: Partial<Serverless> = {
   functions: {
     'get-fixtures': {
       handler: 'src/proxyRequest.main',
+      provisionedConcurrency: 2,
       environment: {
         OOTBALL_AWS_REGION: env.region,
       },

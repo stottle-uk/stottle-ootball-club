@@ -6,9 +6,9 @@ import {
   baseServerlessConfigProvider,
 } from '../../serverless.base';
 
-const warmup = {
-  warmup: { default: { concurrency: 1, enabled: env.name === 'prod' } },
-};
+// const warmup = {
+//   warmup: { default: { concurrency: 1, enabled: env.name === 'prod' } },
+// };
 
 const serverlessConfig: Partial<Serverless> = {
   ...baseServerlessConfig,
@@ -21,15 +21,15 @@ const serverlessConfig: Partial<Serverless> = {
   },
   custom: {
     ...baseServerlessConfig.custom,
-    warmup: {
-      default: {
-        enabled: true,
-        role: 'IamRoleLambdaExecution',
-        architecture: 'arm64',
-        events: [{ schedule: 'cron(0/5 8-23 ? * MON-FRI *)' }],
-        prewarm: true,
-      },
-    },
+    // warmup: {
+    //   default: {
+    //     enabled: true,
+    //     role: 'IamRoleLambdaExecution',
+    //     architecture: 'arm64',
+    //     events: [{ schedule: 'cron(0/5 8-23 ? * MON-FRI *)' }],
+    //     prewarm: true,
+    //   },
+    // },
     'serverless-offline': {
       lambdaPort: 3006,
       httpPort: 3007,
@@ -37,10 +37,11 @@ const serverlessConfig: Partial<Serverless> = {
   },
   functions: {
     'get-web': {
-      ...warmup,
+      // ...warmup,
       handler: 'src/server/handler.serve',
       timeout: 29,
       memorySize: 256,
+      provisionedConcurrency: 2,
       environment: {
         OOTBALL_AWS_REGION: env.region,
         OOTBALL_API_URL: env.apiUrl,
