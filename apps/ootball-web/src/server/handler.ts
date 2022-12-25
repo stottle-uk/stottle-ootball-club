@@ -11,16 +11,6 @@ type APIGatewayProxyHandler = Handler<
 >;
 
 export const serve: APIGatewayProxyHandler = async (event, _context) => {
-  if (event.source === 'serverless-plugin-warmup') {
-    const { ping } = await import('./render');
-
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'text/html' },
-      body: `<html><body>${await ping(event)}</body></html>`,
-    };
-  }
-
   try {
     const render = (await import('./render')).default;
     return {

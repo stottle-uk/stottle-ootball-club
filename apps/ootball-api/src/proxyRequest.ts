@@ -51,14 +51,14 @@ const dbService = () => {
       TableName: tableName,
     });
 
-  const putRecord = <T>(key: string, keyTidy: string, data: T) =>
+  const putRecord = <T>(primaryKey: string, primaryKeyClean: string, data: T) =>
     db.putItem({
       TableName: tableName,
       Item: marshall({
         ...data,
-        key,
-        keyTidy,
-        createDate: new Date().toISOString(),
+        primaryKey,
+        primaryKeyClean,
+        createdDate: new Date().toISOString(),
       }),
       ReturnValues: 'ALL_OLD',
     });
@@ -69,7 +69,7 @@ const dbService = () => {
   };
 };
 
-const fetchSerice = () => {
+const fetchService = () => {
   const fetch = new FetchClient(crossFetch);
   const headers = {
     'X-RapidAPI-Key': process.env.RAPID_API_KEY,
@@ -81,19 +81,29 @@ const fetchSerice = () => {
   return { getData };
 };
 
-export const main: APIGatewayProxyHandler = async (event) => {
+const mainHandler = async (event: APIGatewayProxyEvent) => {
   const { url, keyTidy, keyEncoded } = getURLConfig(event);
 
   const { getRecord, putRecord } = dbService();
   const res = await getRecord(keyEncoded);
   if (res.Item) {
-    return httpResponse(unmarshall(res.Item));
+    return unmarshall(res.Item);
   }
 
-  const { getData } = fetchSerice();
+  const { getData } = fetchService();
   const fetchRes = await getData(url.href);
 
   await putRecord(keyEncoded, keyTidy, fetchRes);
 
-  return httpResponse(fetchRes);
+  return fetchRes;
+};
+
+export const main: APIGatewayProxyHandler = async (event) => {
+  try {
+    const res = await mainHandler(event);
+    return httpResponse(res);
+  } catch (error) {
+    console.error(error);
+    return httpResponse({ error }, { statusCode: 500 });
+  }
 };
