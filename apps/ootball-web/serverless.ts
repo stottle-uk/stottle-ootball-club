@@ -18,6 +18,7 @@ const serverlessConfig: Partial<Serverless> = {
       handler: 'src/server/handler.serve',
       timeout: 29,
       memorySize: 256,
+      reservedConcurrency: 2,
       environment: {
         OOTBALL_AWS_REGION: env.region,
         OOTBALL_API_URL: env.apiUrl,
