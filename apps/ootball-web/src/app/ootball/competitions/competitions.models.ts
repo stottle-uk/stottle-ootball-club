@@ -6,7 +6,7 @@ export interface Round {
 export interface Competition {
   'generic-name': string;
   id: number;
-  type: string;
+  type: 'league' | 'cup';
   'full-name': string;
   rounds: Round[];
 }
