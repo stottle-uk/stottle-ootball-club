@@ -68,11 +68,11 @@ export const StateProvider: React.FC<PropsWithChildren<OwnProps>> = ({
 
   const stateData = useMemo(
     () => ({
-      competitions: state.competitions?.competitions,
-      leagueTable: state.leagueTable?.['league-table'],
-      games: state.games?.['fixtures-results'],
+      competitions: isLoading ? undefined : state.competitions?.competitions,
+      leagueTable: isLoading ? undefined : state.leagueTable?.['league-table'],
+      games: isLoading ? undefined : state.games?.['fixtures-results'],
     }),
-    [state]
+    [state, isLoading]
   );
 
   return (
