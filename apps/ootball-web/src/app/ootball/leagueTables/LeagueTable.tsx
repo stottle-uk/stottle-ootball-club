@@ -6,6 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useStateContext } from '../state/ootball.state';
 
 export const Leaguetable: React.FC = () => {
@@ -32,19 +33,15 @@ export const Leaguetable: React.FC = () => {
           </TableHead>
           <TableBody>
             {leagueTable.teams.map((t) => (
-              <TableRow
-                key={t.id}
-                onClick={() =>
-                  dispatch(`fixtures-results.json?team=${t.id}`, 'games')
-                }
-                sx={{
-                  '&:last-child td, &:last-child th': { border: 0 },
-                  cursor: 'pointer',
-                }}
-                hover={true}
-              >
+              <TableRow key={t.id} hover={true}>
                 <TableCell>{t.position}</TableCell>
-                <TableCell>{t.name}</TableCell>
+                <TableCell
+                  onClick={() =>
+                    dispatch(`fixtures-results.json?team=${t.id}`, 'games')
+                  }
+                >
+                  <Link to={`../fixtures/${t.id}`}>{t.name}</Link>{' '}
+                </TableCell>
                 <TableCell>{t['all-matches'].played}</TableCell>
                 <TableCell>{t['all-matches'].won}</TableCell>
                 <TableCell>{t['all-matches'].drawn}</TableCell>

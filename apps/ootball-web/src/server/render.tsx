@@ -7,7 +7,12 @@ import { renderToString } from 'react-dom/server';
 import { Route, Routes } from 'react-router-dom';
 import { StaticRouter } from 'react-router-dom/server';
 import App from '../app/App';
+import Competitions from '../app/ootball/competitions/Competitions';
 import { CompetitionRes } from '../app/ootball/competitions/competitions.models';
+import Fixtures from '../app/ootball/games/Fixtures';
+import { GamesRes } from '../app/ootball/games/games.models';
+import Leaguetable from '../app/ootball/leagueTables/LeagueTable';
+import { LeagueTableRes } from '../app/ootball/leagueTables/leagueTable.models';
 import { AppState } from '../app/ootball/state/ootball.state';
 import Root from '../root/Root';
 import { createEmotionCache } from '../root/themes';
@@ -35,6 +40,7 @@ const {
   OOTBALL_BUCKET_NAME,
   OOTBALL_BUCKET_URL,
   OOTBALL_API_URL,
+  OOTBALL_ENV_NAME,
 } = process.env;
 
 const getFiles = async (publicUrl: string) => {
@@ -63,13 +69,33 @@ const getFiles = async (publicUrl: string) => {
   return { jsFiles, cssFiles };
 };
 
-const getState = async () => {
+const getState = async (path: string) => {
   const fetch = new FetchClient(crossFetch);
-  const competitions = await fetch.get<CompetitionRes>(
-    `${OOTBALL_API_URL}/competitions.json`
-  );
+  const params = path
+    .split('/')
+    .map((d) => d.trim().toLocaleLowerCase())
+    .filter(Boolean)
+    .filter((d) => d !== 'web-app');
 
-  return { competitions };
+  const leagueTableProm = params.includes('competition')
+    ? fetch.get<LeagueTableRes>(
+        `${OOTBALL_API_URL}/league-table.json?comp=${params[1]}`
+      )
+    : Promise.resolve(undefined);
+
+  const fixturesProm = params.includes('fixtures')
+    ? fetch.get<GamesRes>(
+        `${OOTBALL_API_URL}/fixtures-results.json?team=${params[1]}`
+      )
+    : Promise.resolve(undefined);
+
+  const [competitions, leagueTable, games] = await Promise.all([
+    fetch.get<CompetitionRes>(`${OOTBALL_API_URL}/competitions.json`),
+    leagueTableProm,
+    fixturesProm,
+  ]);
+
+  return { competitions, leagueTable, games };
 };
 
 const html: HtmlFn = ({ content, config }) => `<!DOCTYPE html>
@@ -100,7 +126,7 @@ const app = {
 const render: RenderFn = async (_e) => {
   const [files, defaultState] = await Promise.all([
     getFiles(app.PUBLIC_URL),
-    getState(),
+    getState(_e.path),
   ]);
 
   const cache = createEmotionCache();
@@ -109,9 +135,19 @@ const render: RenderFn = async (_e) => {
 
   const content = renderToString(
     <Root cache={cache} defaultState={defaultState}>
-      <StaticRouter location={_e.path}>
+      <StaticRouter
+        location={`/${OOTBALL_ENV_NAME}${_e.path}`}
+        basename={`${OOTBALL_ENV_NAME}/web-app`}
+      >
         <Routes>
-          <Route path="/web-app" element={<App />} />
+          <Route path="" element={<App />}>
+            <Route path="" element={<Competitions />} />
+            <Route
+              path="competition/:competitionId"
+              element={<Leaguetable />}
+            />
+            <Route path="fixtures/:teamId" element={<Fixtures />} />
+          </Route>
         </Routes>
       </StaticRouter>
     </Root>

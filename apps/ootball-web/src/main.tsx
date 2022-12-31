@@ -7,6 +7,9 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import App from './app/App';
+import Competitions from './app/ootball/competitions/Competitions';
+import Fixtures from './app/ootball/games/Fixtures';
+import Leaguetable from './app/ootball/leagueTables/LeagueTable';
 import { AppState } from './app/ootball/state/ootball.state';
 import { environment } from './environments/environment';
 import Root from './root/Root';
@@ -24,19 +27,35 @@ type MainFn = (
   router: ReturnType<typeof createBrowserRouter>
 ) => () => React.ReactNode;
 
-const defaultState = ('__CONFIG__' in window && window.__CONFIG__) || {};
+const defaultState = window.__CONFIG__ || {};
 const emotionCache = createEmotionCache();
-const rootPath = `/${environment.envName}/web-app`;
-const browserRouter = createBrowserRouter([
-  {
-    path: rootPath,
-    element: <App />,
-  },
-  {
-    path: '*',
-    element: <Navigate to={rootPath} replace={true} />,
-  },
-]);
+const browserRouter = createBrowserRouter(
+  [
+    {
+      path: '',
+      element: <App />,
+      children: [
+        {
+          path: '',
+          element: <Competitions />,
+        },
+        {
+          path: 'competition/:competitionId',
+          element: <Leaguetable />,
+        },
+        {
+          path: 'fixtures/:teamId',
+          element: <Fixtures />,
+        },
+      ],
+    },
+    {
+      path: '*',
+      element: <Navigate to={''} replace={true} />,
+    },
+  ],
+  { basename: `/${environment.envName}/web-app` }
+);
 
 const getMainBuilder: MainFn = (state, cache, router) => () =>
   (

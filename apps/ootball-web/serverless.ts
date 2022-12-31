@@ -24,6 +24,7 @@ const serverlessConfig: Partial<Serverless> = {
         OOTBALL_API_URL: env.apiUrl,
         OOTBALL_BUCKET_NAME: env.bucketName,
         OOTBALL_BUCKET_URL: env.bucketUrl,
+        OOTBALL_ENV_NAME: env.name,
       },
       events: [
         {
