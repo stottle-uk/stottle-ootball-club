@@ -86,8 +86,14 @@ const mainHandler = async (event: APIGatewayProxyEvent) => {
 
   const { getRecord, putRecord } = dbService();
   const res = await getRecord(keyEncoded);
+
   if (res.Item) {
-    return unmarshall(res.Item);
+    const item = unmarshall(res.Item);
+    const createdTime = new Date(item.createdDate).getTime();
+    const checkTime = new Date().getTime() - 86400000;
+    if (createdTime > checkTime) {
+      return item;
+    }
   }
 
   const { getData } = fetchService();
