@@ -70,7 +70,7 @@ const getFiles = async (publicUrl: string) => {
 };
 
 const getState = async (path: string) => {
-  const fetch = new FetchClient(crossFetch);
+  const fetch = new FetchClient(OOTBALL_API_URL, crossFetch);
   const params = path
     .split('/')
     .map((d) => d.trim().toLocaleLowerCase())
@@ -78,19 +78,15 @@ const getState = async (path: string) => {
     .filter((d) => d !== 'web-app');
 
   const leagueTableProm = params.includes('competition')
-    ? fetch.get<LeagueTableRes>(
-        `${OOTBALL_API_URL}/league-table.json?comp=${params[1]}`
-      )
+    ? fetch.get<LeagueTableRes>(`/league-table.json?comp=${params[1]}`)
     : Promise.resolve(undefined);
 
   const fixturesProm = params.includes('fixtures')
-    ? fetch.get<GamesRes>(
-        `${OOTBALL_API_URL}/fixtures-results.json?team=${params[1]}`
-      )
+    ? fetch.get<GamesRes>(`/fixtures-results.json?team=${params[1]}`)
     : Promise.resolve(undefined);
 
   const [competitions, leagueTable, games] = await Promise.all([
-    fetch.get<CompetitionRes>(`${OOTBALL_API_URL}/competitions.json`),
+    fetch.get<CompetitionRes>(`/competitions.json`),
     leagueTableProm,
     fixturesProm,
   ]);

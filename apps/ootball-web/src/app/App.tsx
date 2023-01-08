@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import { Outlet } from 'react-router';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
 import TopBar from './layout/AppBar';
 
 export const App: React.FC = () => (

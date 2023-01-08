@@ -2,8 +2,12 @@ import { EmotionCache } from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
-import { PropsWithChildren } from 'react';
-import { AppState, StateProvider } from '../app/ootball/state/ootball.state';
+import React, { PropsWithChildren } from 'react';
+import { RecoilRoot } from 'recoil';
+import {
+  AppState,
+  initializeRecoilState,
+} from '../app/ootball/state/ootball.state';
 import { theme } from './themes';
 
 interface OwnProps {
@@ -19,7 +23,9 @@ const Root: React.FC<PropsWithChildren<OwnProps>> = ({
   <CacheProvider value={cache}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <StateProvider defaultState={defaultState}>{children}</StateProvider>
+      <RecoilRoot initializeState={initializeRecoilState(defaultState)}>
+        {children}
+      </RecoilRoot>
     </ThemeProvider>
   </CacheProvider>
 );

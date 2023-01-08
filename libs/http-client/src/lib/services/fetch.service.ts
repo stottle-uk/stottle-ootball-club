@@ -5,10 +5,13 @@ type FetchFn = typeof fetch;
 const defaultFetch: FetchFn = (...args) => fetch(...args);
 
 export class FetchClient implements IFetchService {
-  constructor(private fetch = defaultFetch) {}
+  constructor(private baseUrl: string = '', private fetch = defaultFetch) {}
 
   get<R>(url: string, options?: FetchRequest): Promise<R> {
-    return this.doFetch(url, { ...options, method: 'GET' });
+    return this.doFetch(`${this.baseUrl}/${url}`, {
+      ...options,
+      method: 'GET',
+    });
   }
 
   post<R, T = unknown>(
@@ -16,7 +19,7 @@ export class FetchClient implements IFetchService {
     body: T,
     options?: FetchRequest
   ): Promise<R> {
-    return this.doFetch(url, {
+    return this.doFetch(`${this.baseUrl}/${url}`, {
       ...options,
       method: 'POST',
       body: JSON.stringify(body),
@@ -28,7 +31,7 @@ export class FetchClient implements IFetchService {
     body: T,
     options?: FetchRequest
   ): Promise<R> {
-    return this.doFetch(url, {
+    return this.doFetch(`${this.baseUrl}/${url}`, {
       ...options,
       method: 'PUT',
       body: JSON.stringify(body),
@@ -40,7 +43,7 @@ export class FetchClient implements IFetchService {
     body: T,
     options?: FetchRequest | undefined
   ): Promise<R> {
-    return this.doFetch(url, {
+    return this.doFetch(`${this.baseUrl}/${url}`, {
       ...options,
       method: 'PATCH',
       body: JSON.stringify(body),
@@ -48,7 +51,7 @@ export class FetchClient implements IFetchService {
   }
 
   delete(url: string, options?: FetchRequest | undefined): Promise<unknown> {
-    return this.doFetch(url, {
+    return this.doFetch(`${this.baseUrl}/${url}`, {
       ...options,
       method: 'DELETE',
     });

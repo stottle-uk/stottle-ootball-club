@@ -1,13 +1,6 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import { FetchClient } from '@ootball-club/http-client';
+import { atom, MutableSnapshot, selector } from 'recoil';
 import { environment } from '../../../environments/environment';
-import { useFetch } from '../../hooks';
 import {
   Competition,
   CompetitionRes,
@@ -24,67 +17,84 @@ export interface AppState {
   games?: GamesRes;
 }
 
-interface StateModel {
-  dispatch: (url: string, type: keyof AppState) => void;
-  competitions?: Competition[];
-  leagueTable?: LeagueTable;
-  games?: FixturesResults;
-  isLoading: boolean;
-  isLoaded: boolean;
-}
+const http = new FetchClient(environment.apiUrl);
 
-const StateContext = createContext<StateModel>({
-  dispatch: () => void 0,
-  competitions: [],
-  isLoading: false,
-  isLoaded: false,
+export const competitionsSelector = selector<Competition[]>({
+  key: 'competitionsSelector',
+  get: async ({ get }) => {
+    const val = get(competitionsState);
+    return (
+      val?.competitions ||
+      http.get<CompetitionRes>(`/competitions.json`).then((r) => r.competitions)
+    );
+  },
 });
 
-export const useStateContext = () => useContext(StateContext);
+export const leagueTableSelector = selector<LeagueTable | undefined>({
+  key: 'leagueTableSelector',
+  get: async ({ get }) => {
+    const id = get(leagueTablesIdState);
+    const val = get(leagueTablesState);
 
-interface OwnProps {
-  defaultState: AppState;
-}
+    const leagueTable = val?.['league-table'];
+    if (!id) {
+      return leagueTable;
+    }
 
-export const StateProvider: React.FC<PropsWithChildren<OwnProps>> = ({
-  children,
-  defaultState,
-}) => {
-  const [state, setState] = useState<AppState>(defaultState);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const fetch = useFetch(environment.apiUrl);
+    const res = await http.get<LeagueTableRes>(`/league-table.json?comp=${id}`);
+    return res['league-table'];
+  },
+});
 
-  const dispatch = useCallback(
-    async (url: string, type: keyof AppState) => {
-      setIsLoading(true);
-      const res = await fetch.get<AppState[keyof AppState]>(`/${url}`);
-      setState((s) => ({ ...s, [type]: res }));
-      setIsLoaded(true);
-      setIsLoading(false);
-    },
-    [fetch]
-  );
+export const gamesSelector = selector<FixturesResults | undefined>({
+  key: 'gamesSelector',
+  get: async ({ get }) => {
+    const id = get(gamesIdState);
+    const val = get(gamesState);
 
-  const stateData = useMemo(
-    () => ({
-      competitions: isLoading ? undefined : state.competitions?.competitions,
-      leagueTable: isLoading ? undefined : state.leagueTable?.['league-table'],
-      games: isLoading ? undefined : state.games?.['fixtures-results'],
-    }),
-    [state, isLoading]
-  );
+    const results = val?.['fixtures-results'];
+    if (!id) {
+      return results;
+    }
 
-  return (
-    <StateContext.Provider
-      value={{
-        dispatch,
-        isLoading,
-        isLoaded,
-        ...stateData,
-      }}
-    >
-      {children}
-    </StateContext.Provider>
-  );
-};
+    const res = await http.get<GamesRes>(`/fixtures-results.json?team=${id}`);
+    return res['fixtures-results'];
+  },
+});
+
+export const competitionsState = atom<CompetitionRes>({
+  key: 'competitionsState',
+  default: undefined,
+});
+
+export const leagueTablesState = atom<LeagueTableRes | undefined>({
+  key: 'leagueTablesState',
+  default: undefined,
+});
+
+export const leagueTablesIdState = atom<number | undefined>({
+  key: 'leagueTablesIdState',
+  default: undefined,
+});
+
+export const gamesState = atom<GamesRes | undefined>({
+  key: 'gamesState',
+  default: undefined,
+});
+
+export const gamesIdState = atom<number | undefined>({
+  key: 'gamesIdState',
+  default: undefined,
+});
+
+export const initializeRecoilState: (
+  state: AppState
+) => (ss: MutableSnapshot) => void =
+  (state) =>
+  ({ set }) => {
+    if (state.competitions) {
+      set(competitionsState, state.competitions);
+    }
+    set(leagueTablesState, state.leagueTable);
+    set(gamesState, state.games);
+  };
