@@ -1,17 +1,30 @@
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import React from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { gamesSelector } from '../state/ootball.state';
 
 export const FixturesInner: React.FC = () => {
   const games = useRecoilValue(gamesSelector);
+  const navigate = useNavigate();
 
   return !games ? (
     <span>Select a Team</span>
   ) : (
     <div className="fixtures">
-      <h1>
+      <Box component={'h1'} display={'flex'}>
+        <Button
+          onClick={() => navigate(-1)}
+          variant="outlined"
+          color="primary"
+          sx={{ marginRight: '16px' }}
+        >
+          <ArrowBackIosNewIcon />
+        </Button>
         {games.team.name} ({games.team.id})
-      </h1>
+      </Box>
 
       <table>
         <tbody>
@@ -23,9 +36,10 @@ export const FixturesInner: React.FC = () => {
                     {g.date} {g.time}
                   </div>
                   <div>
-                    {`${g.competition.name} ${
-                      g.round ? `(${g.round.name})` : ''
-                    }`}
+                    <RouterLink to={`/competition/${g.competition.id}`}>
+                      {g.competition.name}
+                    </RouterLink>
+                    {`${g.round ? ` (${g.round.name})` : ''}`}
                   </div>
                 </td>
               </tr>

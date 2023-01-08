@@ -1,3 +1,6 @@
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -6,7 +9,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { leagueTableSelector } from '../state/ootball.state';
 
@@ -15,7 +18,19 @@ export const LeaguetableInner: React.FC = () => {
 
   return leagueTable ? (
     <>
-      <h1>{leagueTable.competition.name}</h1>
+      <Box component={'h1'} display={'flex'}>
+        <Button
+          component={RouterLink}
+          to="../"
+          variant="outlined"
+          color="primary"
+          sx={{ marginRight: '16px' }}
+        >
+          <ArrowBackIosNewIcon />
+        </Button>
+        {leagueTable.competition.name}
+      </Box>
+
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: '100%' }} size="small">
           <TableHead>
@@ -37,7 +52,7 @@ export const LeaguetableInner: React.FC = () => {
               <TableRow key={t.id} hover={true}>
                 <TableCell>{t.position}</TableCell>
                 <TableCell>
-                  <Link to={`../fixtures/${t.id}`}>{t.name}</Link>
+                  <RouterLink to={`../fixtures/${t.id}`}>{t.name}</RouterLink>
                 </TableCell>
                 <TableCell>{t['all-matches'].played}</TableCell>
                 <TableCell>{t['all-matches'].won}</TableCell>
