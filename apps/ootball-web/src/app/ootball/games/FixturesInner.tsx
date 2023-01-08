@@ -31,35 +31,44 @@ export const FixturesInner: React.FC = () => {
           {games.matches.map((g) => (
             <React.Fragment key={g.id}>
               <tr className="header">
-                <td colSpan={5}>
+                <td colSpan={2}>
                   <div>
-                    {g.date} {g.time}
-                  </div>
-                  <div>
+                    {`${g.round ? ` (${g.round.name})` : ''} `}
                     <RouterLink to={`/competition/${g.competition.id}`}>
                       {g.competition.name}
                     </RouterLink>
-                    {`${g.round ? ` (${g.round.name})` : ''}`}
+                  </div>
+                </td>
+                <td colSpan={2}>
+                  <div>
+                    {new Date(g.date).toDateString()} {g.time}
                   </div>
                 </td>
               </tr>
               <tr className="info">
-                <td colSpan={5}>
-                  <div>{g.venue}</div>
+                <td colSpan={4}>
                   <div>{g.referee}</div>
-                  <div>{g.attendance}</div>
                 </td>
               </tr>
               <tr className="game">
                 <td>{g['home-team'].name}</td>
                 <td>
-                  <div>{g['home-team'].score}</div>
+                  <div>
+                    {new Date(g.date).getTime() < new Date().getTime()
+                      ? g['home-team'].score
+                      : '-'}
+                  </div>
                 </td>
                 <td>
-                  <div>{g['away-team'].score}</div>
+                  <div>
+                    {new Date(g.date).getTime() < new Date().getTime()
+                      ? g['away-team'].score
+                      : '-'}
+                  </div>
                 </td>
                 <td>{g['away-team'].name}</td>
               </tr>
+
               {/* <tr className="match">
                 <td colSpan={3}>
                   <Match />
