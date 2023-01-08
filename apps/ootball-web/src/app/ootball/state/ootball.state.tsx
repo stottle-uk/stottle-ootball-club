@@ -17,43 +17,22 @@ export interface AppState {
   games?: GamesRes;
 }
 
-const http = new FetchClient(environment.apiUrl);
+export const http = new FetchClient(environment.apiUrl);
 
 export const competitionsSelector = selector<Competition[]>({
   key: 'competitionsSelector',
-  get: async ({ get }) => {
+  get: ({ get }) => {
     const initState = get(appInitState);
-    const results = initState?.competitions?.competitions || [];
-
-    if (results.length) {
-      return results;
-    }
-
-    const comps = await http
-      .get<CompetitionRes>(`/competitions.json`)
-      .then((r) => r.competitions);
-
-    return comps;
+    return initState?.competitions?.competitions || [];
   },
 });
 
 export const leagueTableSelector = selector<LeagueTable | undefined>({
   key: 'leagueTableSelector',
-  get: async ({ get }) => {
-    const id = get(leagueTablesIdState);
+  get: ({ get }) => {
     const initState = get(appInitState);
 
-    const results = initState.leagueTable?.['league-table'];
-    if (id && results?.competition.id === id) {
-      return results;
-    }
-
-    if (!id) {
-      return undefined;
-    }
-
-    const res = await http.get<LeagueTableRes>(`/league-table.json?comp=${id}`);
-    return res['league-table'];
+    return initState.leagueTable?.['league-table'];
   },
 });
 

@@ -1,28 +1,36 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
-import Loader from '../../patterns/Suspense';
-import {
-  leagueTableSelector,
-  leagueTablesIdState,
-} from '../state/ootball.state';
+import { useRecoilCallback } from 'recoil';
+import { appInitState, http } from '../state/ootball.state';
+import { LeagueTableRes } from './leagueTable.models';
 import LeaguetableInner from './LeagueTableInner';
 
 export const Leaguetable: React.FC = () => {
   const params = useParams();
-  const setLeagueTableId = useSetRecoilState(leagueTablesIdState);
+  const inProgress = useRef(false);
+
+  const getItems = useRecoilCallback(
+    ({ set }) =>
+      async (compId: number) => {
+        const leagueTable = await http.get<LeagueTableRes>(
+          `/league-table.json?comp=${compId}`
+        );
+        set(appInitState, (oldAppState) => ({ ...oldAppState, leagueTable }));
+      },
+    []
+  );
 
   useEffect(() => {
-    if (params.competitionId) {
-      setLeagueTableId(+params.competitionId);
-    }
-  }, [params, setLeagueTableId]);
+    (async () => {
+      if (params.competitionId && !inProgress.current) {
+        inProgress.current = true;
+        await getItems(+params.competitionId);
+        inProgress.current = false;
+      }
+    })();
+  }, [getItems, params.competitionId]);
 
-  return (
-    <Loader selector={leagueTableSelector}>
-      <LeaguetableInner />
-    </Loader>
-  );
+  return <LeaguetableInner />;
 };
 
 export default Leaguetable;

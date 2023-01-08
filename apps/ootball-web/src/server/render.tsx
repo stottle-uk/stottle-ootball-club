@@ -96,6 +96,25 @@ const getState = async (path: string) => {
   return { competitions, leagueTable, games };
 };
 
+const onShellReady = (
+  pipe: <Writable extends NodeJS.WritableStream>(
+    destination: Writable
+  ) => Writable
+) => {
+  const streamToString = (stream: PassThrough) => {
+    const chunks: Buffer[] = [];
+    return new Promise<string>((resolve, reject) => {
+      stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+      stream.on('error', (err) => reject(err));
+      stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    });
+  };
+
+  const body = new PassThrough();
+  pipe(body);
+  return streamToString(body);
+};
+
 const renderContent = (
   cache: EmotionCache,
   defaultState: AppState,
@@ -121,11 +140,7 @@ const renderContent = (
         </StaticRouter>
       </Root>,
       {
-        onShellReady: () => {
-          const body = new PassThrough();
-          pipe(body);
-          resolve(body.read().toString('UTF-8'));
-        },
+        onShellReady: () => onShellReady(pipe).then(resolve),
       }
     );
   });
