@@ -70,7 +70,7 @@ const dbService = () => {
 };
 
 const fetchService = () => {
-  const fetch = new FetchClient(crossFetch);
+  const fetch = new FetchClient('', crossFetch);
   const headers = {
     'X-RapidAPI-Key': process.env.RAPID_API_KEY,
     'X-RapidAPI-Host': 'football-web-pages1.p.rapidapi.com',
