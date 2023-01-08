@@ -1,11 +1,13 @@
 import { ListObjectsCommand, S3Client } from '@aws-sdk/client-s3';
+import { EmotionCache } from '@emotion/react';
 import createEmotionServer from '@emotion/server/create-instance';
 import { FetchClient } from '@ootball-club/http-client';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import crossFetch from 'cross-fetch';
-import { renderToString } from 'react-dom/server';
+import { renderToPipeableStream } from 'react-dom/server';
 import { Route, Routes } from 'react-router-dom';
 import { StaticRouter } from 'react-router-dom/server';
+import { PassThrough } from 'stream';
 import App from '../app/App';
 import Competitions from '../app/ootball/competitions/Competitions';
 import { CompetitionRes } from '../app/ootball/competitions/competitions.models';
@@ -94,6 +96,41 @@ const getState = async (path: string) => {
   return { competitions, leagueTable, games };
 };
 
+const renderContent = (
+  cache: EmotionCache,
+  defaultState: AppState,
+  path: string
+) => {
+  return new Promise<string>((resolve) => {
+    const { pipe } = renderToPipeableStream(
+      <Root cache={cache} defaultState={defaultState}>
+        <StaticRouter
+          location={`/${OOTBALL_ENV_NAME}${path}`}
+          basename={`${OOTBALL_ENV_NAME}/web-app`}
+        >
+          <Routes>
+            <Route path="" element={<App />}>
+              <Route path="" element={<Competitions />} />
+              <Route
+                path="competition/:competitionId"
+                element={<Leaguetable />}
+              />
+              <Route path="fixtures/:teamId" element={<Fixtures />} />
+            </Route>
+          </Routes>
+        </StaticRouter>
+      </Root>,
+      {
+        onShellReady: () => {
+          const body = new PassThrough();
+          pipe(body);
+          resolve(body.read().toString('UTF-8'));
+        },
+      }
+    );
+  });
+};
+
 const html: HtmlFn = ({ content, config }) => `<!DOCTYPE html>
     <html lang="en">
       <head>
@@ -129,25 +166,7 @@ const render: RenderFn = async (_e) => {
   const { extractCriticalToChunks, constructStyleTagsFromChunks } =
     createEmotionServer(cache);
 
-  const content = renderToString(
-    <Root cache={cache} defaultState={defaultState}>
-      <StaticRouter
-        location={`/${OOTBALL_ENV_NAME}${_e.path}`}
-        basename={`${OOTBALL_ENV_NAME}/web-app`}
-      >
-        <Routes>
-          <Route path="" element={<App />}>
-            <Route path="" element={<Competitions />} />
-            <Route
-              path="competition/:competitionId"
-              element={<Leaguetable />}
-            />
-            <Route path="fixtures/:teamId" element={<Fixtures />} />
-          </Route>
-        </Routes>
-      </StaticRouter>
-    </Root>
-  );
+  const content = await renderContent(cache, defaultState, _e.path);
 
   const emotionChunks = extractCriticalToChunks(content);
   const css = constructStyleTagsFromChunks(emotionChunks);

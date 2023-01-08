@@ -23,16 +23,16 @@ export const Loader: React.FC<PropsWithChildren<OwnProps>> = ({
   selector,
   loader,
 }) => {
-  const userNameLoadable = useRecoilValueLoadable(selector);
+  const { state, contents } = useRecoilValueLoadable(selector);
 
-  switch (userNameLoadable.state) {
+  switch (state) {
     case 'hasValue':
       // eslint-disable-next-line react/jsx-no-useless-fragment
       return <>{children}</>;
     case 'loading':
       return loader || <Loading />;
     case 'hasError':
-      throw userNameLoadable.contents;
+      throw contents;
   }
 };
 
