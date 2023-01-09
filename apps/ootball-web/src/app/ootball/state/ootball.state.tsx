@@ -1,6 +1,4 @@
-import { FetchClient } from '@ootball-club/http-client';
-import { atom, MutableSnapshot, selector } from 'recoil';
-import { environment } from '../../../environments/environment';
+import { atom, MutableSnapshot, selectorFamily } from 'recoil';
 import {
   Competition,
   CompetitionRes,
@@ -17,63 +15,53 @@ export interface AppState {
   games?: GamesRes;
 }
 
-export const http = new FetchClient(environment.apiUrl);
-
-export const competitionsSelector = selector<Competition[]>({
-  key: 'competitionsSelector',
-  get: ({ get }) => {
-    const initState = get(appInitState);
-    return initState?.competitions?.competitions || [];
-  },
-});
-
-export const leagueTableSelector = selector<LeagueTable | undefined>({
-  key: 'leagueTableSelector',
-  get: ({ get }) => {
-    const initState = get(appInitState);
-
-    return initState.leagueTable?.['league-table'];
-  },
-});
-
-export const gamesSelector = selector<FixturesResults | undefined>({
-  key: 'gamesSelector',
-  get: async ({ get }) => {
-    const id = get(gamesIdState);
-    const initState = get(appInitState);
-
-    const results = initState.games?.['fixtures-results'];
-    if (id && results?.team.id === id) {
-      return results;
-    }
-
-    if (!id) {
-      return undefined;
-    }
-
-    const res = await http.get<GamesRes>(`/fixtures-results.json?team=${id}`);
-    return res['fixtures-results'];
-  },
-});
-
-export const appInitState = atom<AppState>({
+export const competitionsState = atom<Competition[]>({
   key: 'initState',
+  default: [],
+});
+
+export const gamesState = atom<Record<string, FixturesResults>>({
+  key: 'gamesState',
   default: {},
 });
 
-export const leagueTablesIdState = atom<number | undefined>({
-  key: 'leagueTablesIdState',
-  default: undefined,
+export const gamesSelector = selectorFamily<FixturesResults, number>({
+  key: 'gamesSelector',
+  get:
+    (teamId) =>
+    ({ get }) =>
+      get(gamesState)[teamId],
 });
 
-export const gamesIdState = atom<number | undefined>({
-  key: 'gamesIdState',
-  default: undefined,
+export const leagueTablesState = atom<Record<string, LeagueTable>>({
+  key: 'leagueTablesState',
+  default: {},
+});
+
+export const leagueTablesSelector = selectorFamily<LeagueTable, number>({
+  key: 'leagueTablesSelector',
+  get:
+    (teamId) =>
+    ({ get }) =>
+      get(leagueTablesState)[teamId],
 });
 
 export const initializeRecoilState: (
   state: AppState
 ) => (ss: MutableSnapshot) => void =
   (state) =>
-  ({ set }) =>
-    set(appInitState, state);
+  ({ set }) => {
+    set(competitionsState, state.competitions?.competitions || []);
+    const games = state.games?.['fixtures-results'];
+    if (games) {
+      set(gamesState, {
+        [games.team.id]: games,
+      });
+    }
+    const table = state.leagueTable?.['league-table'];
+    if (table) {
+      set(leagueTablesState, {
+        [table.competition.id]: table,
+      });
+    }
+  };

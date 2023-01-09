@@ -4,19 +4,22 @@ import {
   IFetchService,
 } from '@ootball-club/http-client';
 import { createContext, useCallback, useContext } from 'react';
+import { environment } from '../../environments/environment';
 
 type FetchHeaders = FetchRequest['headers'];
 type FetchOptions = Omit<FetchRequest, 'headers'>;
 
-const FetchServiceContext = createContext<IFetchService>(new FetchClient());
+const FetchServiceContext = createContext<IFetchService>(
+  new FetchClient(environment.apiUrl)
+);
 
-export const useFetch = (baseUrl = '') => {
+export const useFetch = () => {
   const fetch = useContext(FetchServiceContext);
 
   const get = useCallback(
     <T>(url: string, headers?: FetchHeaders, opts?: FetchOptions) =>
-      fetch.get<T>(`${baseUrl}${url}`, { headers, ...opts }),
-    [baseUrl, fetch]
+      fetch.get<T>(url, { headers, ...opts }),
+    [fetch]
   );
 
   const post = useCallback(
@@ -25,8 +28,8 @@ export const useFetch = (baseUrl = '') => {
       body: unknown,
       headers: FetchHeaders,
       opts?: FetchOptions
-    ) => fetch.put<T>(`${baseUrl}${url}`, body, { headers, ...opts }),
-    [baseUrl, fetch]
+    ) => fetch.put<T>(url, body, { headers, ...opts }),
+    [fetch]
   );
 
   const put = useCallback(
@@ -35,8 +38,8 @@ export const useFetch = (baseUrl = '') => {
       body: unknown,
       headers: FetchHeaders,
       opts?: FetchOptions
-    ) => fetch.put<T>(`${baseUrl}${url}`, body, { headers, ...opts }),
-    [baseUrl, fetch]
+    ) => fetch.put<T>(url, body, { headers, ...opts }),
+    [fetch]
   );
 
   const patch = useCallback(
@@ -45,14 +48,14 @@ export const useFetch = (baseUrl = '') => {
       body: unknown,
       headers: FetchHeaders,
       opts?: FetchOptions
-    ) => fetch.patch<T>(`${baseUrl}${url}`, body, { headers, ...opts }),
-    [baseUrl, fetch]
+    ) => fetch.patch<T>(url, body, { headers, ...opts }),
+    [fetch]
   );
 
   const del = useCallback(
     (url: string, headers: FetchHeaders, opts?: FetchOptions) =>
-      fetch.delete(`${baseUrl}${url}`, { headers, ...opts }),
-    [baseUrl, fetch]
+      fetch.delete(url, { headers, ...opts }),
+    [fetch]
   );
 
   return { get, post, put, patch, del };

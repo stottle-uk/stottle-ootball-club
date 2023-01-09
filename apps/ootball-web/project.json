@@ -84,11 +84,7 @@
       "options": {
         "cwd": "apps/ootball-web",
         "color": true,
-        "commands": [
-          "npx nx run ootball-web:build:dev-server",
-          "npm run deploy:s3",
-          "sls offline start --aws-profile stottle"
-        ]
+        "command": "npx nx run ootball-web:build:dev-server && npm run deploy:s3 && sls offline start --aws-profile stottle"
       }
     },
     "deploy": {

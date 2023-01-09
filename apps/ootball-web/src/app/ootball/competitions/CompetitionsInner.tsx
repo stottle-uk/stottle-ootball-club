@@ -3,14 +3,14 @@ import Button from '@mui/material/Button';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
-import { competitionsSelector } from '../state/ootball.state';
+import { competitionsState } from '../state/ootball.state';
 
 export const CompetitionsInner: React.FC = () => {
-  const competitions = useRecoilValue(competitionsSelector);
+  const competitions = useRecoilValue(competitionsState);
 
   return (
     <Box className="competitions" display={'flex'} flexWrap={'wrap'}>
-      {(competitions || [])
+      {competitions
         .filter((c) => c.type === 'league')
         .map((c) => (
           <Button

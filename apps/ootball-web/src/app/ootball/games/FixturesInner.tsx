@@ -6,8 +6,8 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { gamesSelector } from '../state/ootball.state';
 
-export const FixturesInner: React.FC = () => {
-  const games = useRecoilValue(gamesSelector);
+export const FixturesInner: React.FC<{ teamId: number }> = ({ teamId }) => {
+  const games = useRecoilValue(gamesSelector(teamId));
   const navigate = useNavigate();
 
   return !games ? (

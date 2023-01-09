@@ -11,10 +11,10 @@ import TableRow from '@mui/material/TableRow';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
-import { leagueTableSelector } from '../state/ootball.state';
+import { leagueTablesSelector } from '../state/ootball.state';
 
-export const LeaguetableInner: React.FC = () => {
-  const leagueTable = useRecoilValue(leagueTableSelector);
+export const LeaguetableInner: React.FC<{ compId: number }> = ({ compId }) => {
+  const leagueTable = useRecoilValue(leagueTablesSelector(compId));
 
   return leagueTable ? (
     <>

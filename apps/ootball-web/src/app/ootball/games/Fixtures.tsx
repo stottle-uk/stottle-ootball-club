@@ -1,25 +1,41 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
-import Loader from '../../patterns/Suspense';
-import { gamesIdState, gamesSelector } from '../state/ootball.state';
+import { useRecoilCallback } from 'recoil';
+import { useFetch } from '../../hooks';
+import { gamesState } from '../state/ootball.state';
 import FixturesInner from './FixturesInner';
+import { GamesRes } from './games.models';
 
 export const Fixtures: React.FC = () => {
   const params = useParams();
-  const setGameId = useSetRecoilState(gamesIdState);
+  const { get } = useFetch();
+
+  const getItems = useRecoilCallback(
+    ({ set, snapshot }) =>
+      async (teamId: number) => {
+        const state = await snapshot.getPromise(gamesState);
+        if (!state[teamId]) {
+          const games = await get<GamesRes>(
+            `/fixtures-results.json?team=${teamId}`
+          );
+
+          set(gamesState, (oldAppState) => ({
+            ...oldAppState,
+            [teamId]: games['fixtures-results'],
+          }));
+        }
+      }
+  );
 
   useEffect(() => {
-    if (params.teamId) {
-      setGameId(+params.teamId);
-    }
-  }, [params, setGameId]);
+    (async () => {
+      if (params.teamId) {
+        await getItems(+params.teamId);
+      }
+    })();
+  }, [getItems, params.teamId]);
 
-  return (
-    <Loader selector={gamesSelector}>
-      <FixturesInner />
-    </Loader>
-  );
+  return params.teamId ? <FixturesInner teamId={+params.teamId} /> : null;
 };
 
 export default Fixtures;
