@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useRecoilCallback } from 'recoil';
 import { appInitState, http } from '../state/ootball.state';
@@ -7,7 +7,6 @@ import LeaguetableInner from './LeagueTableInner';
 
 export const Leaguetable: React.FC = () => {
   const params = useParams();
-  const inProgress = useRef(false);
 
   const getItems = useRecoilCallback(
     ({ set }) =>
@@ -22,10 +21,8 @@ export const Leaguetable: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      if (params.competitionId && !inProgress.current) {
-        inProgress.current = true;
+      if (params.competitionId) {
         await getItems(+params.competitionId);
-        inProgress.current = false;
       }
     })();
   }, [getItems, params.competitionId]);

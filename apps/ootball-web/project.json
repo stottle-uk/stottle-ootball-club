@@ -37,6 +37,14 @@
           "sourceMap": true,
           "vendorChunk": true
         },
+        "dev-server": {
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        },
         "production": {
           "fileReplacements": [
             {
@@ -76,14 +84,12 @@
       "options": {
         "cwd": "apps/ootball-web",
         "color": true,
-        "command": "npm run deploy:s3 && sls offline start --aws-profile stottle"
-      },
-      "dependsOn": [
-        {
-          "target": "build",
-          "projects": "self"
-        }
-      ]
+        "commands": [
+          "npx nx run ootball-web:build:dev-server",
+          "npm run deploy:s3",
+          "sls offline start --aws-profile stottle"
+        ]
+      }
     },
     "deploy": {
       "executor": "nx:run-commands",
