@@ -15,6 +15,8 @@ import Fixtures from '../app/ootball/games/Fixtures';
 import { GamesRes } from '../app/ootball/games/games.models';
 import Leaguetable from '../app/ootball/leagueTables/LeagueTable';
 import { LeagueTableRes } from '../app/ootball/leagueTables/leagueTable.models';
+import Match from '../app/ootball/matches/Match';
+import { MatchRes } from '../app/ootball/matches/matches.models';
 import { AppState } from '../app/ootball/state/ootball.state';
 import Root from '../root/Root';
 import { createEmotionCache } from '../root/themes';
@@ -79,6 +81,10 @@ const getState = async (path: string) => {
     .filter(Boolean)
     .filter((d) => d !== 'web-app');
 
+  const matchProm = params.includes('match')
+    ? fetch.get<MatchRes>(`/match.json?match=${params[1]}`)
+    : Promise.resolve(undefined);
+
   const leagueTableProm = params.includes('competition')
     ? fetch.get<LeagueTableRes>(`/league-table.json?comp=${params[1]}`)
     : Promise.resolve(undefined);
@@ -87,13 +93,14 @@ const getState = async (path: string) => {
     ? fetch.get<GamesRes>(`/fixtures-results.json?team=${params[1]}`)
     : Promise.resolve(undefined);
 
-  const [competitions, leagueTable, games] = await Promise.all([
+  const [competitions, leagueTable, games, match] = await Promise.all([
     fetch.get<CompetitionRes>(`/competitions.json`),
     leagueTableProm,
     fixturesProm,
+    matchProm,
   ]);
 
-  return { competitions, leagueTable, games };
+  return { competitions, leagueTable, games, match };
 };
 
 const onShellReady = (
@@ -135,6 +142,7 @@ const renderContent = (
                 element={<Leaguetable />}
               />
               <Route path="fixtures/:teamId" element={<Fixtures />} />
+              <Route path="match/:matchId" element={<Match />} />
             </Route>
           </Routes>
         </StaticRouter>

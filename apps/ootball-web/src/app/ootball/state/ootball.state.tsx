@@ -8,12 +8,13 @@ import {
   LeagueTable,
   LeagueTableRes,
 } from '../leagueTables/leagueTable.models';
-import { Match } from '../matches/matches.models';
+import { Match, MatchRes } from '../matches/matches.models';
 
 export interface AppState {
   competitions?: CompetitionRes;
   leagueTable?: LeagueTableRes;
   games?: GamesRes;
+  match?: MatchRes;
 }
 
 export const competitionsState = atom<Competition[]>({
@@ -76,6 +77,12 @@ export const initializeRecoilState: (
     if (table) {
       set(leagueTablesState, {
         [table.competition.id]: table,
+      });
+    }
+    const match = state.match?.match;
+    if (match) {
+      set(matchState, {
+        [match.id]: match,
       });
     }
   };
