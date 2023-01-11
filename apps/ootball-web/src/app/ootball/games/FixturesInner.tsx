@@ -41,7 +41,9 @@ export const FixturesInner: React.FC<{ teamId: number }> = ({ teamId }) => {
                 </td>
                 <td colSpan={2}>
                   <div>
-                    {new Date(g.date).toDateString()} {g.time}
+                    <RouterLink to={`/match/${g.id}`}>
+                      {new Date(g.date).toDateString()} {g.time}
+                    </RouterLink>
                   </div>
                 </td>
               </tr>
@@ -50,6 +52,7 @@ export const FixturesInner: React.FC<{ teamId: number }> = ({ teamId }) => {
                   <div>{g.referee}</div>
                 </td>
               </tr>
+
               <tr className="game">
                 <td>{g['home-team'].name}</td>
                 <td>

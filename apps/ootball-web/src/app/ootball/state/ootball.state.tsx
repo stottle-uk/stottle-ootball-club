@@ -8,6 +8,7 @@ import {
   LeagueTable,
   LeagueTableRes,
 } from '../leagueTables/leagueTable.models';
+import { Match } from '../matches/matches.models';
 
 export interface AppState {
   competitions?: CompetitionRes;
@@ -44,6 +45,19 @@ export const leagueTablesSelector = selectorFamily<LeagueTable, number>({
     (teamId) =>
     ({ get }) =>
       get(leagueTablesState)[teamId],
+});
+
+export const matchState = atom<Record<string, Match>>({
+  key: 'matchState',
+  default: {},
+});
+
+export const matchSelector = selectorFamily<Match, number>({
+  key: 'matchSelector',
+  get:
+    (teamId) =>
+    ({ get }) =>
+      get(matchState)[teamId],
 });
 
 export const initializeRecoilState: (
