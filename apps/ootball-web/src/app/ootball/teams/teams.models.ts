@@ -5,6 +5,7 @@ export interface Team {
   name: string;
   postcode: string;
   ground: string;
+  capacity: number;
   telephone: string;
   id: number;
 }

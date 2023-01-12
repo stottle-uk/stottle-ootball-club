@@ -9,6 +9,7 @@ export const derehamTeamData: TeamRes = {
     postcode: 'NR20 3PX',
     ground: 'Aldiss Park',
     telephone: '01362 690460',
+    capacity: 454,
     id: 708,
   },
 };

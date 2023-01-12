@@ -59,7 +59,7 @@ export class FetchClient implements IFetchService {
 
   private async doFetch(path: string, options: FetchRequest & RequestInit) {
     try {
-      const url = this.baseUrl ? `${this.baseUrl}/${path}` : path;
+      const url = this.baseUrl ? `${this.baseUrl}${path}` : path;
       const res = await this.fetch(url, options);
 
       if (!res.ok) {

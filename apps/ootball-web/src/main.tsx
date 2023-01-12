@@ -8,10 +8,10 @@ import {
 } from 'react-router-dom';
 import App from './app/App';
 import Competitions from './app/ootball/competitions/Competitions';
-import Fixtures from './app/ootball/games/Fixtures';
 import Leaguetable from './app/ootball/leagueTables/LeagueTable';
 import Match from './app/ootball/matches/Match';
 import { AppState } from './app/ootball/state/ootball.state';
+import Team from './app/ootball/teams/Team';
 import { environment } from './environments/environment';
 import Root from './root/Root';
 import { createEmotionCache } from './root/themes';
@@ -46,7 +46,7 @@ const browserRouter = createBrowserRouter(
         },
         {
           path: 'fixtures/:teamId',
-          element: <Fixtures />,
+          element: <Team />,
         },
         {
           path: 'match/:matchId',

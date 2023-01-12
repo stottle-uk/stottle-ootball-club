@@ -1,14 +1,17 @@
 import { atom, MutableSnapshot, selectorFamily } from 'recoil';
+import { Appearances } from '../appearances/appearances.models';
 import {
   Competition,
   CompetitionRes,
 } from '../competitions/competitions.models';
 import { FixturesResults, GamesRes } from '../games/games.models';
+import { Goalscorers } from '../goalscorers/goalscorers.models';
 import {
   LeagueTable,
   LeagueTableRes,
 } from '../leagueTables/leagueTable.models';
 import { Match, MatchRes } from '../matches/matches.models';
+import { Team } from '../teams/teams.models';
 
 export interface AppState {
   competitions?: CompetitionRes;
@@ -59,6 +62,45 @@ export const matchSelector = selectorFamily<Match, number>({
     (teamId) =>
     ({ get }) =>
       get(matchState)[teamId],
+});
+
+export const teamState = atom<Record<string, Team>>({
+  key: 'teamState',
+  default: {},
+});
+
+export const teamSelector = selectorFamily<Team, number>({
+  key: 'teamSelector',
+  get:
+    (teamId) =>
+    ({ get }) =>
+      get(teamState)[teamId],
+});
+
+export const goalscorersState = atom<Record<string, Goalscorers>>({
+  key: 'goalscorersState',
+  default: {},
+});
+
+export const goalscorersSelector = selectorFamily<Goalscorers, number>({
+  key: 'goalscorersSelector',
+  get:
+    (teamId) =>
+    ({ get }) =>
+      get(goalscorersState)[teamId],
+});
+
+export const appearancesState = atom<Record<string, Appearances>>({
+  key: 'appearancesState',
+  default: {},
+});
+
+export const appearancesSelector = selectorFamily<Appearances, number>({
+  key: 'appearancesSelector',
+  get:
+    (teamId) =>
+    ({ get }) =>
+      get(appearancesState)[teamId],
 });
 
 export const initializeRecoilState: (

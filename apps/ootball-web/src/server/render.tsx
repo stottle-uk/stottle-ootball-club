@@ -11,13 +11,13 @@ import { PassThrough } from 'stream';
 import App from '../app/App';
 import Competitions from '../app/ootball/competitions/Competitions';
 import { CompetitionRes } from '../app/ootball/competitions/competitions.models';
-import Fixtures from '../app/ootball/games/Fixtures';
 import { GamesRes } from '../app/ootball/games/games.models';
 import Leaguetable from '../app/ootball/leagueTables/LeagueTable';
 import { LeagueTableRes } from '../app/ootball/leagueTables/leagueTable.models';
 import Match from '../app/ootball/matches/Match';
 import { MatchRes } from '../app/ootball/matches/matches.models';
 import { AppState } from '../app/ootball/state/ootball.state';
+import Team from '../app/ootball/teams/Team';
 import Root from '../root/Root';
 import { createEmotionCache } from '../root/themes';
 
@@ -141,7 +141,7 @@ const renderContent = (
                 path="competition/:competitionId"
                 element={<Leaguetable />}
               />
-              <Route path="fixtures/:teamId" element={<Fixtures />} />
+              <Route path="fixtures/:teamId" element={<Team />} />
               <Route path="match/:matchId" element={<Match />} />
             </Route>
           </Routes>
