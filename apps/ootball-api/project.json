@@ -25,7 +25,11 @@
       "options": {
         "cwd": "apps/ootball-api",
         "color": true,
-        "command": "sls deploy --verbose"
+        "commands": [
+          "go build -C ./src -o ../bin/proxyGo",
+          "go list -m all",
+          "sls deploy --stage=dev --region=eu-west-1 --verbose "
+        ]
       },
       "dependsOn": [
         {

@@ -1,17 +1,29 @@
 import type { Serverless } from 'serverless/aws';
-import { env } from '../../environments/environment.serverless';
-import {
-  baseServerlessConfig,
-  baseServerlessConfigProvider,
-} from '../../serverless.base';
+import { env, envName } from '../../environments/environment.serverless';
 
 const myFirstTableName = `my-first-table`;
 
 const serverlessConfig: Partial<Serverless> = {
-  ...baseServerlessConfig,
-  service: `ootball-api`,
+  frameworkVersion: '3',
+  service: 'ootball-api',
+  package: {
+    exclude: ['./**'],
+    include: ['./bin/**'],
+  },
   provider: {
-    ...(baseServerlessConfig.provider || baseServerlessConfigProvider),
+    name: 'aws',
+    runtime: 'go1.x',
+    profile: env.profile,
+    stage: env.name,
+    region: env.region,
+    environment: {
+      NODE_ENV: envName,
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+    },
+    deploymentBucket: { blockPublicAccess: true },
+    apiGateway: {
+      minimumCompressionSize: 1024,
+    },
     iam: {
       role: {
         statements: [
@@ -30,7 +42,6 @@ const serverlessConfig: Partial<Serverless> = {
     },
   },
   custom: {
-    ...baseServerlessConfig.custom,
     'serverless-offline': {
       lambdaPort: 3004,
       httpPort: 3005,
@@ -38,7 +49,7 @@ const serverlessConfig: Partial<Serverless> = {
   },
   functions: {
     'get-fixtures': {
-      handler: 'src/proxyRequest.main',
+      handler: 'bin/proxyGo',
       environment: {
         OOTBALL_AWS_REGION: env.region,
       },

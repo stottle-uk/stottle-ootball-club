@@ -2,6 +2,6 @@
 
 export const environment = {
   envName: 'dev',
-  apiUrl: 'https://yxi58blahc.execute-api.eu-west-1.amazonaws.com/dev',
+  apiUrl: 'https://mh264x35e8.execute-api.eu-west-1.amazonaws.com/dev',
   production: false,
 };
