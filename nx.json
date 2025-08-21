@@ -5,17 +5,14 @@
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
+        "cacheableOperations": ["build", "lint", "test", "e2e"],
+        "accessToken": "ZTEzMmQ3NjEtMTczYi00ZjhmLThlZjgtMDE2ZjJjMWZhYTY2fHJlYWQtd3JpdGU="
       }
     }
   },
   "targetDefaults": {
-    "build": {
-      "dependsOn": ["^build"]
-    },
-    "lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
-    },
+    "build": { "dependsOn": ["^build"] },
+    "lint": { "inputs": ["default", "{workspaceRoot}/.eslintrc.json"] },
     "test": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
     }
@@ -28,13 +25,8 @@
         "bundler": "webpack",
         "babel": true
       },
-      "component": {
-        "style": "scss"
-      },
-      "library": {
-        "style": "scss",
-        "linter": "eslint"
-      }
+      "component": { "style": "scss" },
+      "library": { "style": "scss", "linter": "eslint" }
     }
   },
   "defaultProject": "ootball-web"
